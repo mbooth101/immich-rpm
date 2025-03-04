@@ -1,0 +1,27 @@
+# You can find documentation for all the supported env variables at https://immich.app/docs/install/environment-variables
+
+# TZ is used by exiftool as a fallback in case the timezone cannot be determined from the image metadata. It is also used for logfile timestamps and cron job execution
+# TZ=Etc/UTC
+
+IMMICH_ENV=production
+IMMICH_HOST=0.0.0.0
+IMMICH_PORT=2283
+IMMICH_LOG_LEVEL=log
+IMMICH_MEDIA_LOCATION=/var/lib/immich/library
+
+# When DB_URL is defined, the DB_HOSTNAME, DB_PORT, DB_USERNAME, DB_PASSWORD and DB_DATABASE_NAME database variables are ignored
+# DB_URL=
+DB_HOSTNAME=localhost
+DB_PORT=5432
+DB_USERNAME=immich
+DB_PASSWORD=immich
+DB_DATABASE_NAME=immich
+
+# When REDIS_URL or REDIS_SOCKET are defined, the REDIS_HOSTNAME, REDIS_PORT, REDIS_USERNAME, REDIS_PASSWORD, and REDIS_DBINDEX variables are ignored
+# REDIS_URL=
+# REDIS_SOCKET=
+REDIS_HOSTNAME=localhost
+REDIS_PORT=6379
+REDIS_USERNAME=
+REDIS_PASSWORD=
+REDIS_DBINDEX=0
