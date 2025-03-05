@@ -1,4 +1,5 @@
 .build-*.log
+*/results_*/
 x86_64/
 *.src.rpm
 *.buildreqs.nosrc.rpm
