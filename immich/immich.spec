@@ -9,9 +9,12 @@ Summary:        Self-hosted photo and video management solution
 License:        AGPL-3.0
 URL:            https://immich.app/
 Source0:        v%{version}.tar.gz
+
+# Service files
 Source1:        sysusers
 Source2:        systemd.service
 Source3:        environment
+
 # Geo data
 Source10: https://download.geonames.org/export/dump/cities500.zip
 Source11: https://download.geonames.org/export/dump/admin1CodesASCII.txt
@@ -26,6 +29,8 @@ Requires:      postgresql-server
 Requires:      postgresql-contrib
 Requires:      valkey
 BuildRequires: nodejs-devel
+BuildRequires: python3-devel
+BuildRequires: poetry
 BuildRequires: systemd-rpm-macros
 
 %{?sysusers_requires_compat}
@@ -45,6 +50,11 @@ unzip %{SOURCE10}
 # Fix hard-coded script paths
 sed -i -e 's|/usr/src/app|%{_prefix}/lib/node_modules/%{name}|' server/bin/immich* server/start.sh
 sed -i -e 's|^lib_path=.*|lib_path=%{_libdir}/libmimalloc.so.2|' server/start.sh
+
+%generate_buildrequires
+pushd machine-learning 2>&1 >/dev/null
+%pyproject_buildrequires
+popd 2>&1 >/dev/null
 
 %build
 # These build steps essentially mirroe those performed in the Dockerfile
@@ -71,12 +81,22 @@ npm ci
 npm run build
 popd
 
+# Build machine learning component
+pushd machine-learning
+%pyproject_wheel
+popd
+
 %install
 # User/Group configuration
 install -Dpm 0644 %{SOURCE1} %{buildroot}%{_sysusersdir}/%{name}.conf
 # Systemd service files
 install -Dpm 0644 %{SOURCE2} %{buildroot}%{_unitdir}/%{name}.service
 install -Dpm 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
+
+# Install machine learning component
+pushd machine-learning
+%pyproject_install
+popd
 
 # Install server component
 install -m 0755 -d %{buildroot}%{nodejs_sitelib}/%{name}
@@ -88,6 +108,9 @@ npm set prefix %{buildroot}%{_prefix}
 npm install -g @immich/cli
 mv %{buildroot}%{_prefix}/lib/node_modules/@immich %{buildroot}%{nodejs_sitelib}/@immich
 rm -rf %{buildroot}%{_prefix}/lib/node_modules
+
+# Fix some erroneous exec bits on documentation files
+find %{buildroot}%{nodejs_sitelib} -name LICENSE -o -name \*.md -exec chmod -x {} \;
 
 # Install web component
 install -m 0755 -d %{buildroot}%{_prefix}/lib/%{name}/{geodata,www}
