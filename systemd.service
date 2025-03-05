@@ -10,6 +10,7 @@ User=immich
 Group=immich
 Environment=IMMICH_HOST=0.0.0.0
 Environment=IMMICH_PORT=2283
+Environment=IMMICH_BUILD_DATA=/usr/lib/immich
 EnvironmentFile=/etc/sysconfig/immich
 WorkingDirectory=/usr/lib/node_modules/immich
 ExecStart=/usr/lib/node_modules/immich/start.sh

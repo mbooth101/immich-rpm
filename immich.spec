@@ -3,7 +3,7 @@
 
 Name:           immich
 Version:        1.128.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 License:        AGPL-3.0
@@ -12,6 +12,11 @@ Source0:        v%{version}.tar.gz
 Source1:        sysusers
 Source2:        systemd.service
 Source3:        environment
+# Geo data
+Source10: https://download.geonames.org/export/dump/cities500.zip
+Source11: https://download.geonames.org/export/dump/admin1CodesASCII.txt
+Source12: https://download.geonames.org/export/dump/admin2Codes.txt
+Source13: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_admin_0_countries.geojson
 
 ExclusiveArch:  %{nodejs_arches}
 
@@ -32,6 +37,10 @@ without sacrificing your privacy.
 
 %prep
 %setup -q -n %{name}-%{version}
+
+# Timestamp last time the geodata changed
+date --iso-8601=seconds -d @$(stat -c "%Y" %{SOURCE10}) | tr -d "\n" > geodata-date.txt
+unzip %{SOURCE10}
 
 # Fix hard-coded script paths
 sed -i -e 's|/usr/src/app|%{_prefix}/lib/node_modules/%{name}|' server/bin/immich* server/start.sh
@@ -81,8 +90,13 @@ mv %{buildroot}%{_prefix}/lib/node_modules/@immich %{buildroot}%{nodejs_sitelib}
 rm -rf %{buildroot}%{_prefix}/lib/node_modules
 
 # Install web component
-install -m 0755 -d %{buildroot}%{_prefix}/lib/%{name}
-cp -pr web/build/* %{buildroot}%{_prefix}/lib/%{name}
+install -m 0755 -d %{buildroot}%{_prefix}/lib/%{name}/{geodata,www}
+install -Dpm 0444 cities500.txt %{buildroot}%{_prefix}/lib/%{name}/geodata
+install -Dpm 0444 %{SOURCE11} %{buildroot}%{_prefix}/lib/%{name}/geodata
+install -Dpm 0444 %{SOURCE12} %{buildroot}%{_prefix}/lib/%{name}/geodata
+install -Dpm 0444 %{SOURCE13} %{buildroot}%{_prefix}/lib/%{name}/geodata
+install -Dpm 0444 geodata-date.txt %{buildroot}%{_prefix}/lib/%{name}/geodata
+cp -pr web/build/* %{buildroot}%{_prefix}/lib/%{name}/www
 
 # User data
 install -d %{buildroot}%{_sharedstatedir}/%{name}/backups
@@ -117,6 +131,9 @@ install -d %{buildroot}%{_sharedstatedir}/%{name}/upload
 %attr(0750,immich,immich) %{_sharedstatedir}/%{name}
 
 %changelog
+* Wed Mar 05 2025 Mat Booth <mat.booth@gmail.com> - 1.128.0-2
+- Add geo data
+
 * Mon Mar 03 2025 Mat Booth <mat.booth@gmail.com> - 1.128.0-1
 - Initial release
 

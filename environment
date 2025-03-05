@@ -4,8 +4,6 @@
 # TZ=Etc/UTC
 
 IMMICH_ENV=production
-IMMICH_HOST=0.0.0.0
-IMMICH_PORT=2283
 IMMICH_LOG_LEVEL=log
 IMMICH_MEDIA_LOCATION=/var/lib/immich/library
 
