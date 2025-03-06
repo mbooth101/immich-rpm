@@ -1,3 +1,6 @@
+%bcond check 0
+%global debug_package %{nil}
+
 %global pypi_name tokenizers
 
 Name:           python-%{pypi_name}
@@ -31,6 +34,9 @@ on performance and versatility.
 # Use same dep range for ndarray as numpy does
 sed -i -e '/^ndarray/s/.*/ndarray = ">= 0.15, < 0.17"/' bindings/python/Cargo.toml
 
+pushd tokenizers 2>&1 >/dev/null
+%cargo_prep
+popd 2>&1 >/dev/null
 pushd bindings/python 2>&1 >/dev/null
 %cargo_prep
 popd 2>&1 >/dev/null
