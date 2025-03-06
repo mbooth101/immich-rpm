@@ -10,6 +10,7 @@ URL:            https://github.com/huggingface/tokenizers
 Source0:        %{url}/archive/v%{version}/tokenizers-%{version}.tar.gz
 
 BuildRequires:  gcc-c++
+BuildRequires:  maturin
 BuildRequires:  python3-devel
 BuildRequires:  pyproject-rpm-macros
 BuildRequires:  cargo-rpm-macros
