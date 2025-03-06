@@ -10,8 +10,6 @@ URL:            https://github.com/huggingface/tokenizers
 Source0:        %{url}/archive/v%{version}/tokenizers-%{version}.tar.gz
 
 BuildRequires:  gcc-c++
-BuildRequires:  maturin
-BuildRequires:  python3-devel
 BuildRequires:  pyproject-rpm-macros
 BuildRequires:  cargo-rpm-macros
 
@@ -70,7 +68,7 @@ pushd bindings/python 2>&1 >/dev/null
 popd 2>&1 >/dev/null
 
 %files -n python3-%{pypi_name} -f %{pyproject_files}
-%license LICENSE
+%license LICENSE LICENSES.dependencies
 %doc README.md
 
 %changelog
