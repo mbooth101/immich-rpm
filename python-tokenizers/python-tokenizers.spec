@@ -28,15 +28,13 @@ on performance and versatility.
 
 %prep
 %autosetup -p1 -n %{pypi_name}-%{version}
-pushd tokenizers 2>&1 >/dev/null
+pushd bindings/python 2>&1 >/dev/null
 %cargo_prep
 popd 2>&1 >/dev/null
 
 %generate_buildrequires
-pushd tokenizers 2>&1 >/dev/null
-%cargo_generate_buildrequires
-popd 2>&1 >/dev/null
 pushd bindings/python 2>&1 >/dev/null
+%cargo_generate_buildrequires
 %pyproject_buildrequires
 popd 2>&1 >/dev/null
 
