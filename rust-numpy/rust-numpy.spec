@@ -85,6 +85,8 @@ use the "nalgebra" feature of the "%{crate}" crate.
 
 %prep
 %autosetup -n %{crate}-%{version} -p1
+# Bump dep on nalgebra
+sed -i -e 's/0.32/0.33/' Cargo.toml
 %cargo_prep
 
 %generate_buildrequires
