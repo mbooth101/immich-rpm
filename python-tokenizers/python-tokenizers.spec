@@ -18,7 +18,7 @@ BuildRequires:  cargo-rpm-macros
 BuildRequires:  (crate(env_logger/default) >= 0.11.0 with crate(env_logger/default) < 0.12.0~)
 BuildRequires:  (crate(itertools/default) >= 0.12.0 with crate(itertools/default) < 0.13.0~)
 BuildRequires:  (crate(libc/default) >= 0.2.0 with crate(libc/default) < 0.3.0~)
-BuildRequires:  (Crate(ndarray/default) >= 0.15.0 with crate(ndarray/default) < 0.17.0~)
+BuildRequires:  (crate(ndarray/default) >= 0.15.0 with crate(ndarray/default) < 0.17.0~)
 BuildRequires:  (crate(numpy/default) >= 0.22.0 with crate(numpy/default) < 0.23.0~)
 BuildRequires:  (crate(pyo3/abi3) >= 0.22.0 with crate(pyo3/abi3) < 0.23.0~)
 BuildRequires:  (crate(pyo3/abi3-py39) >= 0.22.0 with crate(pyo3/abi3-py39) < 0.23.0~)
