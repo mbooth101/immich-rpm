@@ -13,6 +13,7 @@ License:        BSD-2-Clause
 URL:            https://crates.io/crates/numpy
 Source:         %{crates_source}
 
+BuildRequires:  python3-numpy
 BuildRequires:  cargo-rpm-macros >= 24
 
 %global _description %{expand:
