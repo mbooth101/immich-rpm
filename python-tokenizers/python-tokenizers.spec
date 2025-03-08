@@ -17,6 +17,9 @@ BuildRequires:  python3-devel
 BuildRequires:  pyproject-rpm-macros
 BuildRequires:  cargo-rpm-macros
 
+BuildRequires:  rust-tempfile-devel
+BuildRequires:  rust-getrandom-devel
+
 %description
 Provides an implementation of today's most used tokenizers, with a focus
 on performance and versatility.
