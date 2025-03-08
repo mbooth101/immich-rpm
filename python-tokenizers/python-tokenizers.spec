@@ -67,7 +67,7 @@ pushd bindings/python 2>&1 >/dev/null
 popd 2>&1 >/dev/null
 
 %files -n python3-%{pypi_name} -f %{pyproject_files}
-%license LICENSE LICENSES.dependencies
+%license LICENSE bindings/python/LICENSES.dependencies
 %doc README.md
 
 %changelog
