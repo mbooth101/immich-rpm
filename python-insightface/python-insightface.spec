@@ -40,8 +40,14 @@ training and deployment.
 %pyproject_install
 %pyproject_save_files %{pypi_name}
 
+# Duplicate data installation
+rm -rf %{buildroot}%{_prefix}/insightface
+# Remove headers
+rm -rf %{buildroot}%{_includedir}
+
 %files -n python3-%{pypi_name} -f %{pyproject_files}
 %doc README.md
+%{_bindir}/insightface-cli
 
 %changelog
 %autochangelog
