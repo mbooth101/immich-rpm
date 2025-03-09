@@ -102,7 +102,7 @@ install -Dpm 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 # Install machine learning component
 pushd machine-learning
 %pyproject_install
-%pyproject_save_files machine_learning
+%pyproject_save_files app
 popd
 
 # Install server component
