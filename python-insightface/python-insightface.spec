@@ -9,6 +9,7 @@ License:        MIT
 URL:            https://github.com/deepinsight/insightface
 Source0:        %{url}/archive/v%{version}/insightface-%{version}.tar.gz
 
+BuildRequires:  gcc-c++
 BuildRequires:  python3-devel
 BuildRequires:  pyproject-rpm-macros
 
