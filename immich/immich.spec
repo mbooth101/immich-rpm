@@ -28,6 +28,7 @@ Requires:      mimalloc
 Requires:      postgresql-server
 Requires:      postgresql-contrib
 Requires:      valkey
+BuildRequires: nodejs-npm
 BuildRequires: nodejs-devel
 BuildRequires: python3-devel
 BuildRequires: poetry
