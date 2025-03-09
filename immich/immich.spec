@@ -51,6 +51,9 @@ unzip %{SOURCE10}
 sed -i -e 's|/usr/src/app|%{_prefix}/lib/node_modules/%{name}|' server/bin/immich* server/start.sh
 sed -i -e 's|^lib_path=.*|lib_path=%{_libdir}/libmimalloc.so.2|' server/start.sh
 
+# Fix dep on opencv
+sed -i -e 's/opencv-python-headless/opencv/' machine-learning/pyproject.toml
+
 %generate_buildrequires
 pushd machine-learning 2>&1 >/dev/null
 %pyproject_buildrequires
