@@ -53,6 +53,8 @@ sed -i -e 's|^lib_path=.*|lib_path=%{_libdir}/libmimalloc.so.2|' server/start.sh
 
 # Fix dep on opencv
 sed -i -e 's/opencv-python-headless/opencv/' machine-learning/pyproject.toml
+# Fix dep on pillow
+sed -i -e '/^pillow/s/11/12/' machine-learning/pyproject.toml
 
 %generate_buildrequires
 pushd machine-learning 2>&1 >/dev/null
