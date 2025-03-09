@@ -102,6 +102,7 @@ install -Dpm 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 # Install machine learning component
 pushd machine-learning
 %pyproject_install
+%pyproject_save_files machine_learning
 popd
 
 # Install server component
@@ -147,7 +148,7 @@ install -d %{buildroot}%{_sharedstatedir}/%{name}/upload
 %postun
 %systemd_postun_with_restart %{name}.service
 
-%files
+%files -f %{pyproject_files}
 %license LICENSE
 %doc README.md SECURITY.md
 %{_sysusersdir}/%{name}.conf
