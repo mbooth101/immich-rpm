@@ -70,6 +70,9 @@
 %bcond_without dnn_cuda
 %endif
 
+# Setting epoch to ensure we never get the opencv version from the base Fedora repo
+Epoch:          1
+
 Name:           opencv
 Version:        4.11.0
 %global javaver %(foo=%{version}; echo ${foo//./})
@@ -239,8 +242,8 @@ BuildRequires:  xorg-x11-drv-dummy
 BuildRequires:  mesa-dri-drivers
 %endif
 
-Requires:       opencv-core%{_isa} = %{version}-%{release}
-Requires:       opencv-data = %{version}-%{release}
+Requires:       opencv-core%{_isa} = %{epoch}:%{version}-%{release}
+Requires:       opencv-data = %{epoch}:%{version}-%{release}
 
 %description
 OpenCV means Intel® Open Source Computer Vision Library. It is a collection of
@@ -276,7 +279,7 @@ This package contains OpenCV data.
 %define moduledesc %{-d:%{-d*}}%{!-d:%{-m*}}\
 %package %{modulename}\
 Summary:  OpenCV module: %{moduledesc}\
-Requires: %{name}-core%{_isa} = %{version}-%{release}\
+Requires: %{name}-core%{_isa} = %{epoch}:%{version}-%{release}\
 \
 %description %{modulename}\
 This package contains the OpenCV %{moduledesc} module runtime.\
@@ -290,7 +293,6 @@ This package contains the OpenCV %{moduledesc} module runtime.\
 %opencv_module_subpkg -m features2d -d %{quote:2D Feature Detection}
 %opencv_module_subpkg -m flann -d %{quote:Clustering and Search in Multi-dimensional Space}
 %opencv_module_subpkg -m gapi -d %{quote:Graph API}
-%opencv_module_subpkg -m highgui -d %{quote:High-level GUI}
 %opencv_module_subpkg -m imgcodecs -d %{quote:Image Encoding/Decoding}
 %opencv_module_subpkg -m imgproc -d %{quote:Image Processing}
 %opencv_module_subpkg -m ml -d %{quote:Machine Learning}
@@ -304,7 +306,6 @@ This package contains the OpenCV %{moduledesc} module runtime.\
 %opencv_module_subpkg -m aruco -d %{quote:Aruco Markers}
 %opencv_module_subpkg -m bgsegm -d %{quote:Background Segmentation}
 %opencv_module_subpkg -m bioinspired -d %{quote:Biologically-inspired Vision Models}
-%opencv_module_subpkg -m ccalib -d %{quote:Custom Calibration Pattern}
 %if %{with cuda}
 %opencv_module_subpkg -m cudaarithm -d %{quote:CUDA Matrix Arithmatic}
 %opencv_module_subpkg -m cudabgsegm -d %{quote:CUDA Background Segmentation}
@@ -362,8 +363,8 @@ This package contains the OpenCV %{moduledesc} module runtime.\
 
 %package        devel
 Summary:        Development files for using the OpenCV library
-Requires:       %{name}%{_isa} = %{version}-%{release}
-Requires:       %{name}-data = %{version}-%{release}
+Requires:       %{name}%{_isa} = %{epoch}:%{version}-%{release}
+Requires:       %{name}-data = %{epoch}:%{version}-%{release}
 Requires:       %{opencv_devel_requires}
 
 %description    devel
@@ -375,7 +376,7 @@ package.
 
 %package        doc
 Summary:        Documentation files
-Requires:       opencv-devel = %{version}-%{release}
+Requires:       opencv-devel = %{epoch}:%{version}-%{release}
 # Doc dependes on architecture, specifically whether the va_intel sample is installed depends on HAVE_VA
 # BuildArch:      noarch
 Provides:       %{name}-devel-docs = %{version}-%{release}
@@ -387,7 +388,7 @@ This package contains the OpenCV documentation, samples and examples programs.
 
 %package        -n python3-opencv
 Summary:        Python3 bindings for apps which use OpenCV
-Requires:       opencv%{_isa} = %{version}-%{release}
+Requires:       opencv%{_isa} = %{epoch}:%{version}-%{release}
 Requires:       python3-numpy
 %{?%py_provides:%py_provides python3-%{name}}
 
@@ -399,7 +400,7 @@ This package contains Python3 bindings for the OpenCV library.
 Summary:    Java bindings for apps which use OpenCV
 Requires:   java-headless
 Requires:   javapackages-filesystem
-Requires:   %{name}-core%{_isa} = %{version}-%{release}
+Requires:   %{name}-core%{_isa} = %{epoch}:%{version}-%{release}
 
 %description java
 This package contains Java bindings for the OpenCV library.
@@ -519,6 +520,7 @@ install -pm 0644 %{S:4} .cache/ade/
  -DWITH_OPENMP=ON \
  -DOPENCV_CONFIG_INSTALL_PATH=%{_lib}/cmake/OpenCV \
  -DOPENCV_GENERATE_PKGCONFIG=ON \
+ -DBUILD_opencv_highgui=OFF \
 %{?with_extras_tests: -DOPENCV_TEST_DATA_PATH=opencv_extra-%{version}/testdata} \
  %{?with_gdcm: -DWITH_GDCM=ON } \
  %{?with_libmfx: -DWITH_MFX=ON  -DWITH_GAPI_ONEVPL=ON} \
