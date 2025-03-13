@@ -1,0 +1,19 @@
+[Unit]
+Description=immich photo and video management machine learning
+Documentation=https://immich.app/docs/overview/introduction
+After=postgresql.service valkey.service
+Requires=postgresql.service valkey.service
+
+[Service]
+Type=simple
+User=immich
+Group=immich
+Environment=IMMICH_HOST=0.0.0.0
+Environment=IMMICH_PORT=3003
+EnvironmentFile=/etc/sysconfig/immich
+WorkingDirectory=/usr/lib/python3.13/site-packages/app
+ExecStart=/usr/lib/python3.13/site-packages/app/start.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
