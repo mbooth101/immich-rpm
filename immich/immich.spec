@@ -3,7 +3,7 @@
 
 Name:           immich
 Version:        1.129.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 License:        AGPL-3.0
@@ -107,6 +107,7 @@ pushd machine-learning
 %pyproject_install
 %pyproject_save_files app
 install -Dpm 0755 start.sh %{buildroot}%{python3_sitelib}/app
+install -Dpm 0644 gunicorn_conf.py log_conf.json %{buildroot}%{python3_sitelib}/app
 popd
 
 # Install server component
@@ -159,6 +160,8 @@ install -d %{buildroot}%{_sharedstatedir}/%{name}/upload
 %{_unitdir}/%{name}-ml.service
 %{_sysconfdir}/sysconfig/%{name}
 %{python3_sitelib}/app/start.sh
+%{python3_sitelib}/app/gunicorn_conf.py
+%{python3_sitelib}/app/log_conf.json
 %{nodejs_sitelib}/%{name}
 %{nodejs_sitelib}/@%{name}
 %{_bindir}/%{name}
@@ -166,6 +169,9 @@ install -d %{buildroot}%{_sharedstatedir}/%{name}/upload
 %attr(0750,immich,immich) %{_sharedstatedir}/%{name}
 
 %changelog
+* Thu Mar 13 2025 Mat Booth <mat.booth@gmail.com> - 1.129.0-2
+- Add ml service conf files
+
 * Tue Mar 11 2025 Mat Booth <mat.booth@gmail.com> - 1.129.0-1
 - Update to latest release
 
