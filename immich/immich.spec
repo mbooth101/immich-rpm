@@ -3,7 +3,7 @@
 
 Name:           immich
 Version:        1.129.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 License:        AGPL-3.0
@@ -100,6 +100,7 @@ install -Dpm 0644 %{SOURCE1} %{buildroot}%{_sysusersdir}/%{name}.conf
 # Systemd service files
 install -Dpm 0644 %{SOURCE2} %{buildroot}%{_unitdir}/%{name}.service
 install -Dpm 0644 %{SOURCE3} %{buildroot}%{_unitdir}/%{name}-ml.service
+sed -i -e 's|##PY_SITELIB##|%{python3_sitelib}|' %{buildroot}%{_unitdir}/%{name}-ml.service
 install -Dpm 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 
 # Install machine learning component
@@ -161,6 +162,7 @@ install -d %{buildroot}%{_sharedstatedir}/%{name}/upload
 %{_sysconfdir}/sysconfig/%{name}
 %{python3_sitelib}/app/start.sh
 %{python3_sitelib}/app/gunicorn_conf.py
+%{python3_sitelib}/app/__pycache__/gunicorn_conf*
 %{python3_sitelib}/app/log_conf.json
 %{nodejs_sitelib}/%{name}
 %{nodejs_sitelib}/@%{name}
@@ -169,6 +171,9 @@ install -d %{buildroot}%{_sharedstatedir}/%{name}/upload
 %attr(0750,immich,immich) %{_sharedstatedir}/%{name}
 
 %changelog
+* Thu Mar 13 2025 Mat Booth <mat.booth@gmail.com> - 1.129.0-3
+- Package additional __pycache__ files and customise python path in service file
+
 * Thu Mar 13 2025 Mat Booth <mat.booth@gmail.com> - 1.129.0-2
 - Add ml service conf files
 

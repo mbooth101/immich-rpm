@@ -11,8 +11,8 @@ Group=immich
 Environment=IMMICH_HOST=0.0.0.0
 Environment=IMMICH_PORT=3003
 EnvironmentFile=/etc/sysconfig/immich
-WorkingDirectory=/usr/lib/python3.13/site-packages/app
-ExecStart=/usr/lib/python3.13/site-packages/app/start.sh
+WorkingDirectory=##PY_SITELIB##/app
+ExecStart=##PY_SITELIB##/app/start.sh
 Restart=on-failure
 
 [Install]
