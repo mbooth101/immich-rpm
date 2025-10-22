@@ -1,0 +1,8 @@
+[[package.extra-patches]]
+number = 10
+file = "0001-relax-dependency-on-convert_case.patch"
+comments = [ "Relax constraint to use the version shipped in Fedora" ]
+
+[tests]
+skip = [ "control_file" ]
+comments = [ "Skip tests that fail when run outside the upstream source tree" ]

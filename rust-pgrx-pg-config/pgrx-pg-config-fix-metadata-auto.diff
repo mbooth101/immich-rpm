@@ -1,0 +1,15 @@
+--- pgrx-pg-config-0.15.0/Cargo.toml	1970-01-01T00:00:01+00:00
++++ pgrx-pg-config-0.15.0/Cargo.toml	2025-10-22T15:06:31.167562+00:00
+@@ -63,12 +63,3 @@
+ [dependencies.url]
+ version = "2.5.4"
+ 
+-[target.'cfg(target_os = "windows")'.dependencies.codepage]
+-version = "0.1.2"
+-
+-[target.'cfg(target_os = "windows")'.dependencies.encoding_rs]
+-version = "0.8.35"
+-
+-[target.'cfg(target_os = "windows")'.dependencies.winapi]
+-version = "0.3.9"
+-features = ["winnls"]

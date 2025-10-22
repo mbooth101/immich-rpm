@@ -1,0 +1,25 @@
+From 74b345a8bb0ede07624f8c17df60912ed915b4ab Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@gmail.com>
+Date: Wed, 22 Oct 2025 15:43:48 +0100
+Subject: [PATCH] relax dependency on convert_case
+
+---
+ Cargo.toml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index b6d3c2d..2bce7ca 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -43,7 +43,7 @@ name = "pgrx_sql_entity_graph"
+ path = "src/lib.rs"
+ 
+ [dependencies.convert_case]
+-version = "0.8.0"
++version = "0.7"
+ 
+ [dependencies.eyre]
+ version = "~0.6.12"
+-- 
+2.51.0
+

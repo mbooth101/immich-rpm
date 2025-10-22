@@ -1,0 +1,14 @@
+[features]
+hide = [ "pg13", "pg14", "pg15", "pg16", "pg17" ]
+enable = [ "pg18" ]
+
+[requires]
+build = [ "postgresql18-server-devel", "postgresql18-private-devel" ]
+
+[scripts]
+prep.post = [
+	"mkdir .pgrx",
+	"echo '[configs]' >> .pgrx/config.toml",
+	"echo 'pg18 = \"/usr/bin/pg_config\"' >> .pgrx/config.toml"
+]
+build.pre = [ "export PGRX_HOME=$(pwd)/.pgrx" ]
