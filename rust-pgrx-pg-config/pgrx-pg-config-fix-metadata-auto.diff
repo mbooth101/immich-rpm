@@ -1,6 +1,6 @@
---- pgrx-pg-config-0.15.0/Cargo.toml	1970-01-01T00:00:01+00:00
-+++ pgrx-pg-config-0.15.0/Cargo.toml	2025-10-22T15:06:31.167562+00:00
-@@ -63,12 +63,3 @@
+--- pgrx-pg-config-0.16.1/Cargo.toml	1970-01-01T00:00:01+00:00
++++ pgrx-pg-config-0.16.1/Cargo.toml	2025-10-23T08:04:32.388348+00:00
+@@ -61,12 +61,3 @@
  [dependencies.url]
  version = "2.5.4"
  

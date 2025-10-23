@@ -5,7 +5,7 @@
 %global crate pgrx-pg-config
 
 Name:           rust-pgrx-pg-config
-Version:        0.15.0
+Version:        0.16.1
 Release:        1%{?dist}
 Summary:        Postgres pg_config wrapper for 'pgrx'
 
@@ -67,5 +67,8 @@ use the "default" feature of the "%{crate}" crate.
 %endif
 
 %changelog
+* Thu Oct 23 2025 Mat Booth <mat.booth@gmail.com> - 0.16.1-1
+- Update to 0.16.1
+
 * Wed Oct 22 2025 Mat Booth <mat.booth@gmail.com> - 0.15.0-1
 - Initial package
