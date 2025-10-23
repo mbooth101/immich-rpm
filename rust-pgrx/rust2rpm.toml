@@ -3,7 +3,7 @@ hide = [ "pg13", "pg14", "pg15", "pg16", "pg17" ]
 enable = [ "pg18" ]
 
 [requires]
-build = [ "postgresql18-server-devel", "postgresql18-private-devel" ]
+build = [ "postgresql18-server-devel", "postgresql18-private-devel", "rustfmt" ]
 
 [scripts]
 prep.post = [
