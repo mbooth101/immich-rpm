@@ -5,7 +5,7 @@
 %global crate pgrx-macros
 
 Name:           rust-pgrx-macros
-Version:        0.15.0
+Version:        0.16.1
 Release:        1%{?dist}
 Summary:        Proc Macros for 'pgrx'
 
@@ -77,5 +77,8 @@ use the "no-schema-generation" feature of the "%{crate}" crate.
 %endif
 
 %changelog
+* Thu Oct 23 2025 Mat Booth <mat.booth@gmail.com> - 0.16.1-1
+- Update to 0.16.1
+
 * Wed Oct 22 2025 Mat Booth <mat.booth@gmail.com> - 0.15.0-1
 - Initial package
