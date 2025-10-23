@@ -6,7 +6,7 @@
 
 Name:           rust-pgrx-catalog
 Version:        0.3.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Out-of-tree version of pgrx catalog safe bindings
 
 License:        MIT
@@ -16,6 +16,7 @@ Source:         %{crates_source}
 BuildRequires:  cargo-rpm-macros >= 24
 BuildRequires:  postgresql18-server-devel
 BuildRequires:  postgresql18-private-devel
+BuildRequires:  rustfmt
 
 %global _description %{expand:
 An out-of-tree version of pgrx catalog safe bindings.}
@@ -83,5 +84,9 @@ export PGRX_HOME=$(pwd)/.pgrx
 %endif
 
 %changelog
+* Thu Oct 23 2025 Mat Booth <mat.booth@gmail.com> - 0.3.1-2
+- Rebuild against pgrx 0.16.1
+- Add missing BR on rustfmt
+
 * Wed Oct 22 2025 Mat Booth <mat.booth@gmail.com> - 0.3.1-1
 - Initial package
