@@ -5,7 +5,7 @@
 %global crate pgrx-pg-sys
 
 Name:           rust-pgrx-pg-sys
-Version:        0.15.0
+Version:        0.16.1
 Release:        1%{?dist}
 Summary:        Generated Rust bindings for Postgres internals, for use with 'pgrx'
 
@@ -16,6 +16,7 @@ Source:         %{crates_source}
 BuildRequires:  cargo-rpm-macros >= 24
 BuildRequires:  postgresql18-server-devel
 BuildRequires:  postgresql18-private-devel
+BuildRequires:  rustfmt
 
 %global _description %{expand:
 Generated Rust bindings for Postgres internals, for use with 'pgrx'.}
@@ -95,5 +96,9 @@ export PGRX_HOME=$(pwd)/.pgrx
 %endif
 
 %changelog
+* Thu Oct 23 2025 Mat Booth <mat.booth@gmail.com> - 0.16.1-1
+- Update to 0.16.1
+- Add missing BR on rustfmt
+
 * Wed Oct 22 2025 Mat Booth <mat.booth@gmail.com> - 0.15.0-1
 - Initial package
