@@ -1,24 +1,17 @@
-From e5af206ff741e02950d0a9b0f211ea90bfa5bca5 Mon Sep 17 00:00:00 2001
+From f9610c38c307a4ebd3160932322e4d4268c08c17 Mon Sep 17 00:00:00 2001
 From: Mat Booth <mat.booth@gmail.com>
-Date: Thu, 23 Oct 2025 12:55:40 +0100
-Subject: [PATCH 2/2] fix mismatched types in if expression
+Date: Tue, 28 Oct 2025 16:44:22 +0000
+Subject: [PATCH 2/3] fix mismatched types in if expression
 
 ---
- src/index/hook.rs | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ src/index/hook.rs | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/src/index/hook.rs b/src/index/hook.rs
-index bfada43..c0d8323 100644
+index bfada43..7a5fa5a 100644
 --- a/src/index/hook.rs
 +++ b/src/index/hook.rs
-@@ -122,17 +122,17 @@ static mut PREV_EXECUTOR_START: pgrx::pg_sys::ExecutorStart_hook_type = None;
- unsafe extern "C-unwind" fn executor_start(
-     query_desc: *mut pgrx::pg_sys::QueryDesc,
-     eflags: core::ffi::c_int,
--) {
-+) -> bool {
-     unsafe {
-         use core::ptr::null_mut;
+@@ -128,10 +128,10 @@ unsafe extern "C-unwind" fn executor_start(
          use pgrx::pg_sys::submodules::ffi::pg_guard_ffi_boundary;
          if let Some(prev_executor_start) = PREV_EXECUTOR_START {
              #[allow(ffi_unwind_calls, reason = "protected by pg_guard_ffi_boundary")]
@@ -27,13 +20,11 @@ index bfada43..c0d8323 100644
          } else {
 -            pgrx::pg_sys::standard_ExecutorStart(query_desc, eflags)
 -        }
--        pg_guard_ffi_boundary(|| rewrite_plan_state((*query_desc).planstate, null_mut()));
 +            pgrx::pg_sys::standard_ExecutorStart(query_desc, eflags);
 +        };
-+        pg_guard_ffi_boundary(|| rewrite_plan_state((*query_desc).planstate, null_mut()))
+         pg_guard_ffi_boundary(|| rewrite_plan_state((*query_desc).planstate, null_mut()));
      }
  }
- 
 -- 
-2.51.0
+2.51.1
 

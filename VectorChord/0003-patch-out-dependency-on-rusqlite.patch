@@ -1,0 +1,644 @@
+From 6b4524ac1bfa26273957365bbce932979f1b0250 Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@gmail.com>
+Date: Wed, 29 Oct 2025 08:49:16 +0000
+Subject: [PATCH 3/3] patch out dependency on rusqlite
+
+---
+ Cargo.toml                             |   1 -
+ src/index/functions.rs                 |   3 +-
+ src/index/scanners.rs                  |   2 -
+ src/index/vchordg/am/mod.rs            |  10 +-
+ src/index/vchordg/scanners/default.rs  |  13 ---
+ src/index/vchordrq/am/mod.rs           |  15 +--
+ src/index/vchordrq/scanners/default.rs |  12 --
+ src/index/vchordrq/scanners/maxsim.rs  |   2 -
+ src/lib.rs                             |   2 -
+ src/recorder/hook.rs                   |  53 ---------
+ src/recorder/mod.rs                    |  26 -----
+ src/recorder/text.rs                   |  40 -------
+ src/recorder/types.rs                  |  62 -----------
+ src/recorder/worker.rs                 | 147 -------------------------
+ 14 files changed, 4 insertions(+), 384 deletions(-)
+ delete mode 100644 src/recorder/hook.rs
+ delete mode 100644 src/recorder/mod.rs
+ delete mode 100644 src/recorder/text.rs
+ delete mode 100644 src/recorder/types.rs
+ delete mode 100644 src/recorder/worker.rs
+
+diff --git a/Cargo.toml b/Cargo.toml
+index a36cfed..e3edc63 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -39,7 +39,6 @@ paste.workspace = true
+ pgrx = { version = "=0.16.1", default-features = false, features = ["cshim"] }
+ pgrx-catalog = "0.3.1"
+ rand.workspace = true
+-rusqlite = { version = "0.37.0", features = ["bundled"] }
+ seq-macro.workspace = true
+ serde.workspace = true
+ toml = ">=0.9.5, <0.10.0"
+diff --git a/src/index/functions.rs b/src/index/functions.rs
+index 65c71c7..6c39b40 100644
+--- a/src/index/functions.rs
++++ b/src/index/functions.rs
+@@ -13,7 +13,6 @@
+ // Copyright (c) 2025 TensorChord Inc.
+ 
+ use crate::index::storage::PostgresRelation;
+-use crate::recorder::dump;
+ use pgrx::iter::SetOfIterator;
+ use pgrx::pg_sys::Oid;
+ use pgrx_catalog::{PgAm, PgClass, PgClassRelkind};
+@@ -105,6 +104,6 @@ fn _vchordrq_sampled_values(indexrelid: Oid) -> SetOfIterator<'static, String> {
+     }
+     // The user must have access to the index, if not, raise an error from Postgres.
+     let _relation = Index::open(indexrelid, pgrx::pg_sys::AccessShareLock as _);
+-    let queries = dump(indexrelid.to_u32());
++    let queries = Vec::new();
+     SetOfIterator::new(queries)
+ }
+diff --git a/src/index/scanners.rs b/src/index/scanners.rs
+index 97d8b1b..b4203b9 100644
+--- a/src/index/scanners.rs
++++ b/src/index/scanners.rs
+@@ -13,7 +13,6 @@
+ // Copyright (c) 2025 TensorChord Inc.
+ 
+ use crate::index::fetcher::Fetcher;
+-use crate::recorder::Recorder;
+ use algo::{Bump, Page, RelationPrefetch, RelationRead, RelationReadStream};
+ use pgrx::pg_sys::Datum;
+ 
+@@ -45,7 +44,6 @@ pub trait SearchBuilder: 'static {
+         options: Self::Options,
+         fetcher: impl Fetcher + 'b,
+         bump: &'b impl Bump,
+-        recorder: impl Recorder,
+     ) -> Box<dyn Iterator<Item = (f32, [u16; 3], bool)> + 'b>
+     where
+         R: RelationRead + RelationPrefetch + RelationReadStream,
+diff --git a/src/index/vchordg/am/mod.rs b/src/index/vchordg/am/mod.rs
+index fc2f2e1..1c49cd4 100644
+--- a/src/index/vchordg/am/mod.rs
++++ b/src/index/vchordg/am/mod.rs
+@@ -20,7 +20,6 @@ use crate::index::scanners::SearchBuilder;
+ use crate::index::storage::PostgresRelation;
+ use crate::index::vchordg::opclass::opfamily;
+ use crate::index::vchordg::scanners::*;
+-use crate::recorder::DefaultRecorder;
+ use pgrx::datum::Internal;
+ use pgrx::pg_sys::Datum;
+ use std::cell::LazyCell;
+@@ -374,13 +373,6 @@ pub unsafe extern "C-unwind" fn amrescan(
+                 )
+             })
+         };
+-        // Query recorde is disable for vchordg indexes for now.
+-        let recorder = DefaultRecorder {
+-            enable: false,
+-            rate: None,
+-            max_records: 0,
+-            index: (*(*scan).indexRelation).rd_id.to_u32(),
+-        };
+         // PAY ATTENTATION: `scanning` references `bump`, so `scanning` must be dropped before `bump`.
+         let bump = scanner.bump.as_ref();
+         scanner.scanning = match opfamily {
+@@ -406,7 +398,7 @@ pub unsafe extern "C-unwind" fn amrescan(
+                 LazyCell::new(Box::new(move || {
+                     // only do this since `PostgresRelation` has no destructor
+                     let index = bump.alloc(index.clone());
+-                    builder.build(index, options, fetcher, bump, recorder)
++                    builder.build(index, options, fetcher, bump)
+                 }))
+             }
+         };
+diff --git a/src/index/vchordg/scanners/default.rs b/src/index/vchordg/scanners/default.rs
+index 54a2c56..6168e7d 100644
+--- a/src/index/vchordg/scanners/default.rs
++++ b/src/index/vchordg/scanners/default.rs
+@@ -18,7 +18,6 @@ use crate::index::scanners::{Io, SearchBuilder};
+ use crate::index::vchordg::algo::*;
+ use crate::index::vchordg::opclass::Opfamily;
+ use crate::index::vchordg::scanners::SearchOptions;
+-use crate::recorder::{Recorder, halfvec_out, vector_out};
+ use algo::accessor::{Dot, L2S};
+ use algo::*;
+ use distance::Distance;
+@@ -27,7 +26,6 @@ use std::num::NonZero;
+ use vchordg::operator::{self};
+ use vchordg::types::{DistanceKind, OwnedVector, VectorKind};
+ use vchordg::*;
+-use vector::VectorOwned;
+ use vector::vect::{VectBorrowed, VectOwned};
+ 
+ pub struct DefaultBuilder {
+@@ -80,7 +78,6 @@ impl SearchBuilder for DefaultBuilder {
+         options: SearchOptions,
+         _fetcher: impl Fetcher + 'b,
+         bump: &'b impl Bump,
+-        recorder: impl Recorder,
+     ) -> Box<dyn Iterator<Item = (f32, [u16; 3], bool)> + 'b>
+     where
+         R: RelationRead + RelationPrefetch + RelationReadStream,
+@@ -512,16 +509,6 @@ impl SearchBuilder for DefaultBuilder {
+         } else {
+             iter
+         };
+-        if recorder.is_enabled() {
+-            match &vector {
+-                OwnedVector::Vecf32(v) => {
+-                    recorder.send(&vector_out(v.as_borrowed()));
+-                }
+-                OwnedVector::Vecf16(v) => {
+-                    recorder.send(&halfvec_out(v.as_borrowed()));
+-                }
+-            }
+-        }
+         Box::new(iter.map(move |(distance, pointer)| {
+             let (key, _) = pointer_to_kv(pointer);
+             (opfamily.output(distance), key, recheck)
+diff --git a/src/index/vchordrq/am/mod.rs b/src/index/vchordrq/am/mod.rs
+index 03bb274..e397352 100644
+--- a/src/index/vchordrq/am/mod.rs
++++ b/src/index/vchordrq/am/mod.rs
+@@ -20,7 +20,6 @@ use crate::index::scanners::SearchBuilder;
+ use crate::index::storage::PostgresRelation;
+ use crate::index::vchordrq::opclass::{Opfamily, opfamily};
+ use crate::index::vchordrq::scanners::*;
+-use crate::recorder::DefaultRecorder;
+ use pgrx::datum::Internal;
+ use pgrx::pg_sys::Datum;
+ use std::cell::LazyCell;
+@@ -457,16 +456,6 @@ pub unsafe extern "C-unwind" fn amrescan(
+                 )
+             })
+         };
+-        let rate = match gucs::vchordrq_query_sampling_rate() {
+-            0.0 => None,
+-            rate => Some(rate),
+-        };
+-        let recorder = DefaultRecorder {
+-            enable: gucs::vchordrq_query_sampling_enable(),
+-            rate,
+-            max_records: gucs::vchordrq_query_sampling_max_records(),
+-            index: (*(*scan).indexRelation).rd_id.to_u32(),
+-        };
+         // PAY ATTENTATION: `scanning` references `bump`, so `scanning` must be dropped before `bump`.
+         let bump = scanner.bump.as_ref();
+         scanner.scanning = match opfamily {
+@@ -492,7 +481,7 @@ pub unsafe extern "C-unwind" fn amrescan(
+                 LazyCell::new(Box::new(move || {
+                     // only do this since `PostgresRelation` has no destructor
+                     let index = bump.alloc(index.clone());
+-                    builder.build(index, options, fetcher, bump, recorder)
++                    builder.build(index, options, fetcher, bump)
+                 }))
+             }
+             Opfamily::VectorMaxsim | Opfamily::HalfvecMaxsim => {
+@@ -512,7 +501,7 @@ pub unsafe extern "C-unwind" fn amrescan(
+                 LazyCell::new(Box::new(move || {
+                     // only do this since `PostgresRelation` has no destructor
+                     let index = bump.alloc(index.clone());
+-                    builder.build(index, options, fetcher, bump, recorder)
++                    builder.build(index, options, fetcher, bump)
+                 }))
+             }
+         };
+diff --git a/src/index/vchordrq/scanners/default.rs b/src/index/vchordrq/scanners/default.rs
+index c61d0ba..2a61a0c 100644
+--- a/src/index/vchordrq/scanners/default.rs
++++ b/src/index/vchordrq/scanners/default.rs
+@@ -19,7 +19,6 @@ use crate::index::vchordrq::algo::*;
+ use crate::index::vchordrq::filter::filter;
+ use crate::index::vchordrq::opclass::Opfamily;
+ use crate::index::vchordrq::scanners::SearchOptions;
+-use crate::recorder::{Recorder, halfvec_out, vector_out};
+ use algo::accessor::{Dot, L2S};
+ use algo::prefetcher::*;
+ use algo::*;
+@@ -83,7 +82,6 @@ impl SearchBuilder for DefaultBuilder {
+         options: SearchOptions,
+         mut fetcher: impl Fetcher + 'b,
+         bump: &'b impl Bump,
+-        recorder: impl Recorder,
+     ) -> Box<dyn Iterator<Item = (f32, [u16; 3], bool)> + 'b>
+     where
+         R: RelationRead + RelationPrefetch + RelationReadStream,
+@@ -691,16 +689,6 @@ impl SearchBuilder for DefaultBuilder {
+         } else {
+             iter
+         };
+-        if recorder.is_enabled() {
+-            match &vector {
+-                OwnedVector::Vecf32(v) => {
+-                    recorder.send(&vector_out(v.as_borrowed()));
+-                }
+-                OwnedVector::Vecf16(v) => {
+-                    recorder.send(&halfvec_out(v.as_borrowed()));
+-                }
+-            }
+-        }
+         Box::new(iter.map(move |(distance, pointer)| {
+             let (key, _) = pointer_to_kv(pointer);
+             (distance, key, recheck)
+diff --git a/src/index/vchordrq/scanners/maxsim.rs b/src/index/vchordrq/scanners/maxsim.rs
+index 6560399..eecf815 100644
+--- a/src/index/vchordrq/scanners/maxsim.rs
++++ b/src/index/vchordrq/scanners/maxsim.rs
+@@ -18,7 +18,6 @@ use crate::index::vchordrq::algo::*;
+ use crate::index::vchordrq::filter::filter;
+ use crate::index::vchordrq::opclass::Opfamily;
+ use crate::index::vchordrq::scanners::SearchOptions;
+-use crate::recorder::Recorder;
+ use algo::accessor::Dot;
+ use algo::prefetcher::*;
+ use algo::*;
+@@ -73,7 +72,6 @@ impl SearchBuilder for MaxsimBuilder {
+         options: SearchOptions,
+         mut fetcher: impl Fetcher + 'b,
+         bump: &'b impl Bump,
+-        _sender: impl Recorder,
+     ) -> Box<dyn Iterator<Item = (f32, [u16; 3], bool)> + 'b>
+     where
+         R: RelationRead + RelationPrefetch + RelationReadStream,
+diff --git a/src/lib.rs b/src/lib.rs
+index 25ff506..b458d51 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -18,7 +18,6 @@
+ 
+ mod datatype;
+ mod index;
+-mod recorder;
+ mod upgrade;
+ 
+ pgrx::pg_module_magic!(
+@@ -54,7 +53,6 @@ unsafe extern "C-unwind" fn _pg_init() {
+     }
+     IS_MAIN.set(true);
+     index::init();
+-    recorder::init();
+     unsafe {
+         #[cfg(any(feature = "pg13", feature = "pg14"))]
+         pgrx::pg_sys::EmitWarningsOnPlaceholders(c"vchord".as_ptr());
+diff --git a/src/recorder/hook.rs b/src/recorder/hook.rs
+deleted file mode 100644
+index 8dadee9..0000000
+--- a/src/recorder/hook.rs
++++ /dev/null
+@@ -1,53 +0,0 @@
+-// This software is licensed under a dual license model:
+-//
+-// GNU Affero General Public License v3 (AGPLv3): You may use, modify, and
+-// distribute this software under the terms of the AGPLv3.
+-//
+-// Elastic License v2 (ELv2): You may also use, modify, and distribute this
+-// software under the Elastic License v2, which has specific restrictions.
+-//
+-// We welcome any commercial collaboration or support. For inquiries
+-// regarding the licenses, please contact us at:
+-// vectorchord-inquiry@tensorchord.ai
+-//
+-// Copyright (c) 2025 TensorChord Inc.
+-
+-use crate::recorder::worker::{delete_database, delete_index};
+-
+-static mut PREV_OBJECT_ACCESS: pgrx::pg_sys::object_access_hook_type = None;
+-
+-#[pgrx::pg_guard]
+-unsafe extern "C-unwind" fn recorder_object_access(
+-    access: pgrx::pg_sys::ObjectAccessType::Type,
+-    class_id: pgrx::pg_sys::Oid,
+-    object_id: pgrx::pg_sys::Oid,
+-    sub_id: ::std::os::raw::c_int,
+-    arg: *mut ::std::os::raw::c_void,
+-) {
+-    unsafe {
+-        use pgrx::pg_sys::submodules::ffi::pg_guard_ffi_boundary;
+-        if let Some(prev_object_access_hook) = PREV_OBJECT_ACCESS {
+-            #[allow(ffi_unwind_calls, reason = "protected by pg_guard_ffi_boundary")]
+-            pg_guard_ffi_boundary(|| {
+-                prev_object_access_hook(access, class_id, object_id, sub_id, arg)
+-            });
+-        }
+-        if access == pgrx::pg_sys::ObjectAccessType::OAT_DROP
+-            && class_id == pgrx::pg_sys::DatabaseRelationId
+-        {
+-            delete_database(object_id.to_u32());
+-        } else if access == pgrx::pg_sys::ObjectAccessType::OAT_DROP
+-            && class_id == pgrx::pg_sys::RelationRelationId
+-        {
+-            delete_index(object_id.to_u32());
+-        }
+-    }
+-}
+-
+-pub fn init() {
+-    assert!(crate::is_main());
+-    unsafe {
+-        PREV_OBJECT_ACCESS = pgrx::pg_sys::object_access_hook;
+-        pgrx::pg_sys::object_access_hook = Some(recorder_object_access);
+-    }
+-}
+diff --git a/src/recorder/mod.rs b/src/recorder/mod.rs
+deleted file mode 100644
+index 77a09d4..0000000
+--- a/src/recorder/mod.rs
++++ /dev/null
+@@ -1,26 +0,0 @@
+-// This software is licensed under a dual license model:
+-//
+-// GNU Affero General Public License v3 (AGPLv3): You may use, modify, and
+-// distribute this software under the terms of the AGPLv3.
+-//
+-// Elastic License v2 (ELv2): You may also use, modify, and distribute this
+-// software under the Elastic License v2, which has specific restrictions.
+-//
+-// We welcome any commercial collaboration or support. For inquiries
+-// regarding the licenses, please contact us at:
+-// vectorchord-inquiry@tensorchord.ai
+-//
+-// Copyright (c) 2025 TensorChord Inc.
+-
+-pub use text::{halfvec_out, vector_out};
+-pub use types::{DefaultRecorder, Recorder};
+-pub use worker::dump;
+-
+-mod hook;
+-mod text;
+-mod types;
+-mod worker;
+-
+-pub fn init() {
+-    hook::init();
+-}
+diff --git a/src/recorder/text.rs b/src/recorder/text.rs
+deleted file mode 100644
+index 321599a..0000000
+--- a/src/recorder/text.rs
++++ /dev/null
+@@ -1,40 +0,0 @@
+-// This software is licensed under a dual license model:
+-//
+-// GNU Affero General Public License v3 (AGPLv3): You may use, modify, and
+-// distribute this software under the terms of the AGPLv3.
+-//
+-// Elastic License v2 (ELv2): You may also use, modify, and distribute this
+-// software under the Elastic License v2, which has specific restrictions.
+-//
+-// We welcome any commercial collaboration or support. For inquiries
+-// regarding the licenses, please contact us at:
+-// vectorchord-inquiry@tensorchord.ai
+-//
+-// Copyright (c) 2025 TensorChord Inc.
+-
+-use simd::f16;
+-use vector::vect::VectBorrowed;
+-
+-pub fn vector_out(vector: VectBorrowed<'_, f32>) -> String {
+-    let mut result = String::from("[");
+-    for x in vector.slice() {
+-        if !result.ends_with('[') {
+-            result.push(',');
+-        }
+-        result.push_str(&x.to_string());
+-    }
+-    result.push(']');
+-    result
+-}
+-
+-pub fn halfvec_out(vector: VectBorrowed<'_, f16>) -> String {
+-    let mut result = String::from("[");
+-    for x in vector.slice() {
+-        if !result.ends_with('[') {
+-            result.push(',');
+-        }
+-        result.push_str(&x.to_string());
+-    }
+-    result.push(']');
+-    result
+-}
+diff --git a/src/recorder/types.rs b/src/recorder/types.rs
+deleted file mode 100644
+index 39ec9a9..0000000
+--- a/src/recorder/types.rs
++++ /dev/null
+@@ -1,62 +0,0 @@
+-// This software is licensed under a dual license model:
+-//
+-// GNU Affero General Public License v3 (AGPLv3): You may use, modify, and
+-// distribute this software under the terms of the AGPLv3.
+-//
+-// Elastic License v2 (ELv2): You may also use, modify, and distribute this
+-// software under the Elastic License v2, which has specific restrictions.
+-//
+-// We welcome any commercial collaboration or support. For inquiries
+-// regarding the licenses, please contact us at:
+-// vectorchord-inquiry@tensorchord.ai
+-//
+-// Copyright (c) 2025 TensorChord Inc.
+-
+-use crate::recorder::worker::push;
+-use rand::Rng;
+-use std::cell::RefMut;
+-
+-pub trait Recorder {
+-    fn is_enabled(&self) -> bool;
+-    fn send(&self, sample: &str);
+-}
+-
+-#[derive(Debug)]
+-pub struct DefaultRecorder {
+-    pub enable: bool,
+-    pub rate: Option<f64>,
+-    pub max_records: u32,
+-    pub index: u32,
+-}
+-
+-pub struct PgRefCell<T>(std::cell::RefCell<T>);
+-
+-unsafe impl<T: Send> Send for PgRefCell<T> {}
+-unsafe impl<T: Send> Sync for PgRefCell<T> {}
+-
+-impl<T> PgRefCell<T> {
+-    pub const fn new(x: T) -> Self {
+-        Self(std::cell::RefCell::new(x))
+-    }
+-    pub fn borrow_mut(&self) -> RefMut<'_, T> {
+-        assert!(
+-            crate::is_main(),
+-            "cannot borrow the value outside main thread"
+-        );
+-        self.0.borrow_mut()
+-    }
+-}
+-
+-impl Recorder for DefaultRecorder {
+-    fn is_enabled(&self) -> bool {
+-        self.enable
+-    }
+-    fn send(&self, sample: &str) {
+-        if let Some(rate) = self.rate {
+-            let mut rng = rand::rng();
+-            if rng.random_bool(rate) {
+-                push(self.index, sample, self.max_records);
+-            }
+-        }
+-    }
+-}
+diff --git a/src/recorder/worker.rs b/src/recorder/worker.rs
+deleted file mode 100644
+index cbef6b1..0000000
+--- a/src/recorder/worker.rs
++++ /dev/null
+@@ -1,147 +0,0 @@
+-// This software is licensed under a dual license model:
+-//
+-// GNU Affero General Public License v3 (AGPLv3): You may use, modify, and
+-// distribute this software under the terms of the AGPLv3.
+-//
+-// Elastic License v2 (ELv2): You may also use, modify, and distribute this
+-// software under the Elastic License v2, which has specific restrictions.
+-//
+-// We welcome any commercial collaboration or support. For inquiries
+-// regarding the licenses, please contact us at:
+-// vectorchord-inquiry@tensorchord.ai
+-//
+-// Copyright (c) 2025 TensorChord Inc.
+-
+-use crate::recorder::types::PgRefCell;
+-use std::cell::RefMut;
+-use std::fs;
+-use std::path::Path;
+-
+-// Safety: The directory name must start with "pgsql_tmp" to be excluded by pg_basebackup
+-const RECORDER_DIR: &str = "pgsql_tmp_vchord_sampling";
+-const RECORDER_VERSION: u32 = 1;
+-
+-static CONNECTION: PgRefCell<Option<rusqlite::Connection>> =
+-    PgRefCell::<Option<rusqlite::Connection>>::new(None);
+-
+-fn get<'a>() -> Option<RefMut<'a, rusqlite::Connection>> {
+-    if unsafe { !pgrx::pg_sys::IsBackendPid(pgrx::pg_sys::MyProcPid) } {
+-        return None;
+-    }
+-    let database_oid = unsafe { pgrx::pg_sys::MyDatabaseId.to_u32() };
+-    if database_oid == 0 {
+-        return None;
+-    }
+-    let mut connection = CONNECTION.borrow_mut();
+-    if connection.is_none()
+-        && let Err(err) = || -> rusqlite::Result<()> {
+-            if !Path::new(RECORDER_DIR).exists() {
+-                let _ = fs::create_dir_all(RECORDER_DIR);
+-            }
+-            let p = format!("{RECORDER_DIR}/database_{database_oid}.sqlite");
+-            let mut conn = rusqlite::Connection::open(&p)?;
+-            conn.pragma_update(Some("main"), "journal_mode", "WAL")?;
+-            conn.pragma_update(Some("main"), "synchronous", "NORMAL")?;
+-            let tx = conn.transaction()?;
+-            let version: u32 = tx
+-                .pragma_query_value(Some("main"), "user_version", |row| row.get(0))
+-                .unwrap_or(RECORDER_VERSION);
+-            if version != RECORDER_VERSION && version != 0 {
+-                let mut statement = tx.prepare(
+-                    "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'index_%';",
+-                )?;
+-                let tables = statement.query_map((), |row| row.get::<usize, String>(0))?;
+-                for name in tables.into_iter().flatten() {
+-                    let drop_statement = format!("DROP TABLE IF EXISTS {name}");
+-                    tx.execute(&drop_statement, ())?;
+-                }
+-            }
+-            tx.pragma_update(Some("main"), "user_version", RECORDER_VERSION)?;
+-            tx.commit()?;
+-            let _ = connection.insert(conn);
+-            Ok(())
+-        }()
+-    {
+-        if err.sqlite_error_code() == Some(rusqlite::ErrorCode::DatabaseCorrupt) {
+-            delete_database(database_oid);
+-        }
+-        pgrx::debug1!("Recorder: Error initializing database: {}", err);
+-        return None;
+-    }
+-    RefMut::filter_map(connection, |c| c.as_mut()).ok()
+-}
+-
+-pub fn push(index: u32, sample: &str, max_records: u32) {
+-    let mut connection = match get() {
+-        Some(c) => c,
+-        None => return,
+-    };
+-    let init_statement = format!(
+-        "
+-        CREATE TABLE IF NOT EXISTS index_{index} (sample TEXT, create_at REAL);
+-        CREATE INDEX IF NOT EXISTS i ON index_{index} (create_at);
+-        "
+-    );
+-    let insert_statement =
+-        format!("INSERT INTO index_{index} (sample, create_at) VALUES (?1, unixepoch('subsec'))");
+-    let count_statement = format!("SELECT COUNT(create_at) FROM index_{index}");
+-    let maintain_statement = format!(
+-        "DELETE FROM index_{index} WHERE rowid = (
+-        SELECT rowid FROM index_{index} ORDER BY create_at ASC LIMIT ?1);"
+-    );
+-    if let Err(err) = || -> rusqlite::Result<()> {
+-        let tx = connection.transaction()?;
+-        tx.execute_batch(&init_statement)?;
+-        tx.prepare_cached(&insert_statement)?.execute((sample,))?;
+-        let records = tx.query_one(&count_statement, (), |row| row.get::<usize, u32>(0))?;
+-        if records > max_records {
+-            tx.execute(&maintain_statement, (records - max_records,))?;
+-        }
+-        tx.commit()?;
+-        Ok(())
+-    }() {
+-        pgrx::debug1!("Recorder: Error pushing sample: {}", err);
+-    }
+-}
+-
+-pub fn delete_index(index: u32) {
+-    let connection = match get() {
+-        Some(c) => c,
+-        None => return,
+-    };
+-    let drop_statement = format!("DROP TABLE IF EXISTS index_{index}");
+-    if let Err(e) = connection.execute(&drop_statement, ()) {
+-        pgrx::debug1!("Recorder: Error deleting index table: {}", e);
+-    };
+-}
+-
+-pub fn delete_database(database_oid: u32) {
+-    let _ = fs::remove_file(format!("{RECORDER_DIR}/database_{database_oid}.sqlite"));
+-    let _ = fs::remove_file(format!("{RECORDER_DIR}/database_{database_oid}.sqlite-shm"));
+-    let _ = fs::remove_file(format!("{RECORDER_DIR}/database_{database_oid}.sqlite-wal"));
+-}
+-
+-pub fn dump(index: u32) -> Vec<String> {
+-    let connection = match get() {
+-        Some(c) => c,
+-        None => return Vec::new(),
+-    };
+-    let load_statement = format!("SELECT sample FROM index_{index} ORDER BY create_at DESC");
+-    match || -> rusqlite::Result<Vec<String>> {
+-        let mut stmt = connection.prepare(&load_statement)?;
+-        let mut rows = stmt.query(())?;
+-        let mut result = Vec::new();
+-        while let Some(row) = rows.next()? {
+-            if let Ok(sample) = row.get::<usize, String>(0) {
+-                result.push(sample);
+-            }
+-        }
+-        Ok(result)
+-    }() {
+-        Ok(v) => v,
+-        Err(e) => {
+-            pgrx::debug1!("Recorder: Error loading samples: {}", e);
+-            Vec::new()
+-        }
+-    }
+-}
+-- 
+2.51.1
+

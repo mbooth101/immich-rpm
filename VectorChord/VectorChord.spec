@@ -3,7 +3,7 @@ Name:           VectorChord
 # Versions higher than this require us to package libsqlite3 and rusqlite,
 # which are in Fedora but not new enough. Maybe wait until they are updated
 # in the distro
-Version:        0.5.1
+Version:        0.5.3
 Release:        1%{?dist}
 Summary:        High-performance, and disk-efficient vector similarity search
 
@@ -13,6 +13,7 @@ Source:         https://github.com/tensorchord/%{name}/archive/refs/tags/%{versi
 
 Patch:          0001-relax-dependency-requirements.patch
 Patch:          0002-fix-mismatched-types-in-if-expression.patch
+Patch:          0003-patch-out-dependency-on-rusqlite.patch
 
 BuildRequires:  cargo-rpm-macros >= 24
 BuildRequires:  postgresql18-server-devel
@@ -52,6 +53,9 @@ install -m 0644 ./sql/install/vchord--%{version}.sql %{buildroot}%{_datadir}/pgs
 install -m 0644 vchord.control %{buildroot}%{_datadir}/pgsql/extension
 
 %changelog
+* Wed Oct 29 2025 Mat Booth <mat.booth@gmail.com> - 0.5.3-1
+- Update to 0.5.3
+
 * Wed Oct 22 2025 Mat Booth <mat.booth@gmail.com> - 0.5.3-1
 - Initial package
 
