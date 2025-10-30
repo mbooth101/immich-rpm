@@ -2,23 +2,21 @@
 
 Name:           python-%{pypi_name}
 Version:        0.12.3
-Release:        %autorelease
+Release:        1%{?dist}
 Summary:        Multi-backend async IO cache
 
 License:        BSD-3-Clause
 URL:            https://github.com/aio-libs/aiocache
-Source0:        %{url}/archive/v%{version}/aiocache-%{version}.tar.gz
+Source:         %{pypi_source %{pypi_name}}
 
 BuildArch: noarch
-
 BuildRequires:  python3-devel
-BuildRequires:  pyproject-rpm-macros
 
 %description
 Asyncio cache manager for redis, memcached and memory.
 
 %package -n     python3-%{pypi_name}
-Summary:        Multi-backend async IO cache
+Summary:        %{summary}
 
 %description -n python3-%{pypi_name}
 Asyncio cache manager for redis, memcached and memory.
@@ -41,4 +39,6 @@ Asyncio cache manager for redis, memcached and memory.
 %doc README.rst
 
 %changelog
-%autochangelog
+* Thu Oct 30 2025 Mat Booth <mat.booth@gmail.com> - 0.12.3-1
+- Rebuild package
+

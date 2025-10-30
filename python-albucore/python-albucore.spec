@@ -2,17 +2,15 @@
 
 Name:           python-%{pypi_name}
 Version:        0.0.23
-Release:        %autorelease
+Release:        1%{?dist}
 Summary:        Library of optimized atomic functions for image processing
 
 License:        MIT
 URL:            https://github.com/albumentations-team/albucore
-Source0:        %{url}/archive/%{version}/albucore-%{version}.tar.gz
+Source:         %{pypi_source %{pypi_name}}
 
 BuildArch: noarch
-
 BuildRequires:  python3-devel
-BuildRequires:  pyproject-rpm-macros
 
 %description
 Albucore is a library of optimized atomic functions designed for efficient
@@ -20,7 +18,7 @@ image processing. These functions serve as the foundation for Albumentations,
 a popular image augmentation library.
 
 %package -n     python3-%{pypi_name}
-Summary:        Library of optimized atomic functions for image processing
+Summary:        %{summary}
 
 %description -n python3-%{pypi_name}
 Albucore is a library of optimized atomic functions designed for efficient
@@ -31,6 +29,10 @@ a popular image augmentation library.
 %autosetup -p1 -n %{pypi_name}-%{version}
 
 sed -i -e 's/opencv-python-headless/opencv/' setup.py
+
+# Fix license warnings
+sed -i -e 's/^license.*/license = "MIT"/' \
+       -e '/License :: OSI Approved :: MIT License/d' pyproject.toml
 
 %generate_buildrequires
 %pyproject_buildrequires
@@ -47,4 +49,6 @@ sed -i -e 's/opencv-python-headless/opencv/' setup.py
 %doc README.md
 
 %changelog
-%autochangelog
+* Thu Oct 30 2025 Mat Booth <mat.booth@gmail.com> - 0.0.23-1
+- Rebuild package
+
