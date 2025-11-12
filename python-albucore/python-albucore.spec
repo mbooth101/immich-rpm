@@ -1,16 +1,19 @@
 %global pypi_name albucore
 
 Name:           python-%{pypi_name}
-Version:        0.0.23
+Version:        0.0.24
 Release:        1%{?dist}
 Summary:        Library of optimized atomic functions for image processing
 
 License:        MIT
 URL:            https://github.com/albumentations-team/albucore
-Source:         %{pypi_source %{pypi_name}}
+Source:         %{url}/archive/refs/tags/%{version}.tar.gz
 
 BuildArch: noarch
 BuildRequires:  python3-devel
+
+# Test dependencies
+BuildRequires:  python3dist(pytest)
 
 %description
 Albucore is a library of optimized atomic functions designed for efficient
@@ -44,11 +47,19 @@ sed -i -e 's/^license.*/license = "MIT"/' \
 %pyproject_install
 %pyproject_save_files %{pypi_name}
 
+%check
+%pyproject_check_import
+%pytest
+
 %files -n python3-%{pypi_name} -f %{pyproject_files}
 %license LICENSE
 %doc README.md
 
 %changelog
+* Wed Nov 12 2025 Mat Booth <mat.booth@gmail.com> - 0.0.24-1
+- Update to 0.0.24
+- Enable running tests
+
 * Thu Oct 30 2025 Mat Booth <mat.booth@gmail.com> - 0.0.23-1
 - Rebuild package
 
