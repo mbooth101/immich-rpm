@@ -1,0 +1,15 @@
+[Unit]
+Description=immich photo and video management machine learning
+Documentation=https://immich.app/docs/overview/introduction
+
+[Service]
+Type=simple
+User=immich_ml
+Group=immich_ml
+EnvironmentFile=/etc/sysconfig/immich_ml
+WorkingDirectory=/var/lib/immich_ml
+ExecStart=python3 -m immich_ml
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

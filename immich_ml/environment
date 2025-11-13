@@ -1,0 +1,12 @@
+# Environment variables affecting the immich machine learning component
+#
+# Documentation for all the supported env variables can be found here:
+# https://immich.app/docs/install/environment-variables
+
+# Directory where models are downloaded
+MACHINE_LEARNING_CACHE_FOLDER=/var/cache/immich_ml
+
+# Listening interface
+IMMICH_HOST=[::1]
+# Listening port
+IMMICH_PORT=3003
