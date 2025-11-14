@@ -1,13 +1,13 @@
 [Unit]
-Description=immich photo and video management machine learning
+Description=Immich photo and video management machine learning service
 Documentation=https://immich.app/docs/overview/introduction
 
 [Service]
 Type=simple
 User=immich_ml
 Group=immich_ml
-EnvironmentFile=/etc/sysconfig/immich_ml
-WorkingDirectory=/var/lib/immich_ml
+EnvironmentFile=/etc/sysconfig/immich-machine-learning
+WorkingDirectory=/var/lib/immich-machine-learning
 ExecStart=python3 -m immich_ml
 Restart=on-failure
 

@@ -1,4 +1,6 @@
-Name:           immich_ml
+%global pypi_name immich_ml
+
+Name:           immich-machine-learning
 Version:        2.1.0
 Release:        1%{?dist}
 Summary:        Self-hosted photo and video management solution
@@ -21,19 +23,22 @@ BuildRequires: systemd-rpm-macros
 %global _description %{expand:
 Easily back up, organize, and manage your photos on your own server. Immich
 helps you browse, search and organize your photos and videos with ease,
-without sacrificing your privacy.}
+without sacrificing your privacy.
+
+Machine learning component.}
 
 %description %_description
 
-%package -n python3-%{name}
+%package -n python3-%{pypi_name}
 Summary: %{summary}
+Provides: %{name} = %{version}-%{release}
 
-%description -n python3-%{name} %_description
+%description -n python3-%{pypi_name} %_description
 
-%pyproject_extras_subpkg -n python3-%{name} cpu
+%pyproject_extras_subpkg -n python3-%{pypi_name} cpu
 
 %prep
-%autosetup -p1 -n %{name}-%{version}
+%autosetup -p1 -n %{pypi_name}-%{version}
 
 # Fix dep on opencv
 sed -i -e 's/opencv-python-headless/opencv/' pyproject.toml
@@ -57,34 +62,34 @@ install -Dpm 0644 %{SOURCE1} %{buildroot}%{_sysusersdir}/%{name}.conf
 install -Dpm 0644 %{SOURCE2} %{buildroot}%{_unitdir}/%{name}.service
 install -Dpm 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 # Cache directory where models are downloaded
-install -dm 0750 %{buildroot}%{_localstatedir}/cache/immich_ml
+install -dm 0750 %{buildroot}%{_localstatedir}/cache/%{name}
 # Service working directory
-install -dm 0750 %{buildroot}%{_localstatedir}/lib/immich_ml
+install -dm 0750 %{buildroot}%{_localstatedir}/lib/%{name}
 
 %pyproject_install
-%pyproject_save_files immich_ml
+%pyproject_save_files %{pypi_name}
 
 %check
 %pyproject_check_import
 %pytest
 
-%post -n python3-%{name}
+%post -n python3-%{pypi_name}
 %systemd_post %{name}.service
 
-%preun -n python3-%{name}
+%preun -n python3-%{pypi_name}
 %systemd_preun %{name}.service
 
-%postun -n python3-%{name}
+%postun -n python3-%{pypi_name}
 %systemd_postun_with_restart %{name}.service
 
-%files -n python3-%{name} -f %{pyproject_files}
+%files -n python3-%{pypi_name} -f %{pyproject_files}
 %license LICENSE
 %doc README.md
 %{_sysusersdir}/%{name}.conf
 %{_unitdir}/%{name}.service
 %{_sysconfdir}/sysconfig/%{name}
-%dir %attr(750,immich_ml,immich_ml) %{_localstatedir}/cache/immich_ml
-%dir %attr(750,immich_ml,immich_ml) %{_localstatedir}/lib/immich_ml
+%dir %attr(750,immich_ml,immich_ml) %{_localstatedir}/cache/%{name}
+%dir %attr(750,immich_ml,immich_ml) %{_localstatedir}/lib/%{name}
 
 %changelog
 * Tue Nov 11 2025 Mat Booth <mat.booth@gmail.com> - 2.1.0-1

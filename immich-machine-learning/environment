@@ -4,7 +4,7 @@
 # https://immich.app/docs/install/environment-variables
 
 # Directory where models are downloaded
-MACHINE_LEARNING_CACHE_FOLDER=/var/cache/immich_ml
+MACHINE_LEARNING_CACHE_FOLDER=/var/cache/immich-machine-learning
 
 # Listening interface
 IMMICH_HOST=[::1]
