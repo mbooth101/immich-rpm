@@ -11,8 +11,9 @@ if [ ! -f "v$VERSION.tar.xz" ] ; then
 
 	pushd immich-$VERSION
 	# Unneeded for RPM build
-	rm -r mobile/
+	rm -r design/
 	rm -r docs/
+	rm -r mobile/
 	# Fonts already shipped in Fedora
 	rm web/src/lib/assets/fonts/overpass/*.ttf
 	# Pointless splashes for iOS
