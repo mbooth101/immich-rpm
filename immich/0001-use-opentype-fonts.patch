@@ -1,0 +1,47 @@
+From ce7febb306114d234e655cf1baf85744d125aed1 Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@gmail.com>
+Date: Thu, 13 Nov 2025 21:30:55 +0000
+Subject: [PATCH 1/4] use opentype fonts
+
+---
+ web/src/app.css         | 4 ++--
+ web/src/hooks.server.ts | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/web/src/app.css b/web/src/app.css
+index f66743f..f1d4fae 100644
+--- a/web/src/app.css
++++ b/web/src/app.css
+@@ -93,7 +93,7 @@
+ @layer utilities {
+   @font-face {
+     font-family: 'Overpass';
+-    src: url('$lib/assets/fonts/overpass/Overpass.ttf') format('truetype-variations');
++    src: url('$lib/assets/fonts/overpass/overpass-regular.otf') format('opentype');
+     font-weight: 1 999;
+     font-style: normal;
+     ascent-override: 106.25%;
+@@ -102,7 +102,7 @@
+ 
+   @font-face {
+     font-family: 'Overpass Mono';
+-    src: url('$lib/assets/fonts/overpass/OverpassMono.ttf') format('truetype-variations');
++    src: url('$lib/assets/fonts/overpass/overpass-mono-regular.otf') format('opentype');
+     font-weight: 1 999;
+     font-style: monospace;
+     ascent-override: 106.25%;
+diff --git a/web/src/hooks.server.ts b/web/src/hooks.server.ts
+index 1606f92..5dafced 100644
+--- a/web/src/hooks.server.ts
++++ b/web/src/hooks.server.ts
+@@ -1,5 +1,5 @@
+-import overpass from '$lib/assets/fonts/overpass/Overpass.ttf?url';
+-import overpassMono from '$lib/assets/fonts/overpass/OverpassMono.ttf?url';
++import overpass from '$lib/assets/fonts/overpass/overpass-regular.otf?url';
++import overpassMono from '$lib/assets/fonts/overpass/overpass-mono-regular.otf?url';
+ import type { Handle } from '@sveltejs/kit';
+ 
+ // only used during the build to replace the variables from app.html
+-- 
+2.51.1
+

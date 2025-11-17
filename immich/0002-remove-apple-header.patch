@@ -1,0 +1,32 @@
+From a325021b22cdf15556ae614e1d2967e1cd13f428 Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@gmail.com>
+Date: Thu, 13 Nov 2025 21:46:19 +0000
+Subject: [PATCH 2/4] remove apple header
+
+---
+ web/src/routes/+layout.svelte | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/web/src/routes/+layout.svelte b/web/src/routes/+layout.svelte
+index c159c46..cea8f23 100644
+--- a/web/src/routes/+layout.svelte
++++ b/web/src/routes/+layout.svelte
+@@ -4,7 +4,6 @@
+   import { shortcut } from '$lib/actions/shortcut';
+   import DownloadPanel from '$lib/components/asset-viewer/download-panel.svelte';
+   import ErrorLayout from '$lib/components/layouts/ErrorLayout.svelte';
+-  import AppleHeader from '$lib/components/shared-components/apple-header.svelte';
+   import NavigationLoadingBar from '$lib/components/shared-components/navigation-loading-bar.svelte';
+   import NotificationList from '$lib/components/shared-components/notification/notification-list.svelte';
+   import UploadPanel from '$lib/components/shared-components/upload-panel.svelte';
+@@ -107,7 +106,6 @@
+   <title>{page.data.meta?.title || 'Web'} - Immich</title>
+   <link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
+   <meta name="theme-color" content="currentColor" />
+-  <AppleHeader />
+ 
+   {#if page.data.meta}
+     <meta name="description" content={page.data.meta.description} />
+-- 
+2.51.1
+

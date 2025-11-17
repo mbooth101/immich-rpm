@@ -1,5 +1,5 @@
 [Unit]
-Description=immich photo and video management
+Description=Immich photo and video management service
 Documentation=https://immich.app/docs/overview/introduction
 After=postgresql.service valkey.service
 Requires=postgresql.service valkey.service
@@ -8,12 +8,9 @@ Requires=postgresql.service valkey.service
 Type=simple
 User=immich
 Group=immich
-Environment=IMMICH_HOST=0.0.0.0
-Environment=IMMICH_PORT=2283
-Environment=IMMICH_BUILD_DATA=/usr/lib/immich
 EnvironmentFile=/etc/sysconfig/immich
-WorkingDirectory=/usr/lib/node_modules/immich
-ExecStart=/usr/lib/node_modules/immich/start.sh
+WorkingDirectory=/usr/lib/immich/app
+ExecStart=/usr/lib/immich/app/server/bin/start.sh
 Restart=on-failure
 
 [Install]

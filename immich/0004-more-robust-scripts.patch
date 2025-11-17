@@ -1,0 +1,35 @@
+From 5ce7fffdc792bb88fb14bad64f875c5c244aca50 Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@gmail.com>
+Date: Sat, 15 Nov 2025 17:47:04 +0000
+Subject: [PATCH 4/4] more robust scripts
+
+---
+ server/bin/start.sh | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/server/bin/start.sh b/server/bin/start.sh
+index 0afff4c..b5b465c 100755
+--- a/server/bin/start.sh
++++ b/server/bin/start.sh
+@@ -9,7 +9,8 @@ echo "Initializing Immich $IMMICH_SOURCE_REF"
+ #   echo "skipping libmimalloc - path not found $lib_path"
+ # fi
+ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/lib/jellyfin-ffmpeg/lib"
+-SERVER_HOME="$(readlink -f "$(dirname "$0")/..")"
++SCRIPT_LOC="$(readlink -f "$(dirname "$0")")"
++SERVER_HOME="$( (cd $SCRIPT_LOC/.. && pwd) )"
+ 
+ read_file_and_export() {
+ 	fname="${!1}"
+@@ -29,7 +30,7 @@ read_file_and_export "DB_USERNAME_FILE" "DB_USERNAME"
+ read_file_and_export "DB_PASSWORD_FILE" "DB_PASSWORD"
+ read_file_and_export "REDIS_PASSWORD_FILE" "REDIS_PASSWORD"
+ 
+-if CPU_CORES="${CPU_CORES:=$(get-cpus.sh 2>/dev/null)}"; then
++if CPU_CORES="${CPU_CORES:=$($SCRIPT_LOC/get-cpus.sh 2>/dev/null)}"; then
+   echo "Detected CPU Cores: $CPU_CORES"
+   if [ "$CPU_CORES" -gt 4 ]; then
+     export UV_THREADPOOL_SIZE=$CPU_CORES
+-- 
+2.51.1
+
