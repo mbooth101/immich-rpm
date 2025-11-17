@@ -1,0 +1,15 @@
+# Licensing
+
+While the main immich application is licensed under GNU Affero General Public License v3.0, the supporting libraries packaged by this repo are licensed in a variety of ways, including but not limited to the following licenses:
+
+# AGPL-3.0
+# AGPL-3.0 AND Apache-2.0
+# AGPL-3.0 OR Elastic-2.0
+# Apache-2.0
+# BSD-2-Clause
+# BSD-3-Clause
+# BSD-3-Clause AND Apache-2.0 AND ISC
+# MIT
+# MIT OR Apache-2.0
+
+The RPM specfile and supporting files may be considered to be licensed under the same terms as the software it packages.
