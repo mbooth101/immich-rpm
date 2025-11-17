@@ -2,7 +2,7 @@
 
 Name:           immich-machine-learning
 Version:        2.1.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 # One file is Apache 2.0 licensed:
@@ -92,6 +92,9 @@ install -dm 0750 %{buildroot}%{_localstatedir}/lib/%{name}
 %dir %attr(750,immich_ml,immich_ml) %{_localstatedir}/lib/%{name}
 
 %changelog
+* Mon Nov 17 2025 Mat Booth <mat.booth@gmail.com> - 2.1.0-2
+- Fix home directory
+
 * Tue Nov 11 2025 Mat Booth <mat.booth@gmail.com> - 2.1.0-1
 - Split machine learning into discrete package
 - Update to 2.1.0 release
