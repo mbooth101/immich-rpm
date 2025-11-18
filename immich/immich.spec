@@ -3,7 +3,7 @@
 
 Name:           immich
 Version:        2.1.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 License:        AGPL-3.0
@@ -148,6 +148,9 @@ install -d %{buildroot}%{_sharedstatedir}/immich
 %dir %attr(0750,immich,immich) %{_sharedstatedir}/immich
 
 %changelog
+* Tue Nov 18 2025 Mat Booth <mat.booth@gmail.com> - 2.1.0-2
+- Fix machine learning service URL
+
 * Tue Nov 11 2025 Mat Booth <mat.booth@gmail.com> - 2.1.0-1
 - Update to 2.1.0 release
 - Move machine learning parts to discrete package
