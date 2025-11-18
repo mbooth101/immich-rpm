@@ -1,0 +1,4 @@
+[submodule "opencv"]
+	path = opencv
+	url = ssh://mbooth@pkgs.fedoraproject.org/forks/mbooth/rpms/opencv.git
+	branch = mbooth
