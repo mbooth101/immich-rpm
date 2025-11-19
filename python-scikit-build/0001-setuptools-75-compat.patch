@@ -1,0 +1,25 @@
+From dfbdecc827803520882dbdbae5116babf0595160 Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@gmail.com>
+Date: Wed, 19 Nov 2025 18:38:48 +0000
+Subject: [PATCH] setuptools 75 compat
+
+---
+ tests/__init__.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/__init__.py b/tests/__init__.py
+index 4f3c954..dc8402e 100644
+--- a/tests/__init__.py
++++ b/tests/__init__.py
+@@ -215,7 +215,7 @@ def execute_setup_py(project_dir, setup_args, disable_languages_test=False):
+     """
+ 
+     # See https://stackoverflow.com/questions/9160227/dir-util-copy-tree-fails-after-shutil-rmtree
+-    distutils.dir_util._path_created.clear()  # type: ignore[attr-defined]
++    distutils.dir_util.SkipRepeatAbsolutePaths.clear()  # type: ignore[attr-defined]
+ 
+     # Clear _PYTHON_HOST_PLATFORM to ensure value sets in skbuild.setuptools_wrap.setup() does not
+     # influence other tests.
+-- 
+2.51.1
+
