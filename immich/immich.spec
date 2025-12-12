@@ -3,7 +3,7 @@
 
 Name:           immich
 Version:        2.1.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 License:        AGPL-3.0
@@ -30,6 +30,8 @@ Patch: 0002-remove-apple-header.patch
 Patch: 0003-skip-failing-off-by-one-hour-tests.patch
 # Fix some hardcoded assumptions about PATH contents
 Patch: 0004-more-robust-scripts.patch
+# Useful if your users are externally managed
+Patch: 0005-allow-skipping-initial-admin-user-registration.patch
 
 ExclusiveArch: %{nodejs_arches}
 
@@ -140,7 +142,7 @@ install -d %{buildroot}%{_sharedstatedir}/immich
 %doc README.md SECURITY.md
 %{_sysusersdir}/%{name}.conf
 %{_unitdir}/%{name}.service
-%{_sysconfdir}/sysconfig/%{name}
+%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
 %dir %{_prefix}/lib/immich
 %{_prefix}/lib/immich/app
 %{_prefix}/lib/immich/geodata
@@ -148,6 +150,9 @@ install -d %{buildroot}%{_sharedstatedir}/immich
 %dir %attr(0750,immich,immich) %{_sharedstatedir}/immich
 
 %changelog
+* Fri Dec 12 2025 Mat Booth <mat.booth@gmail.com> - 2.1.0-3
+- Patch to allow skipping initial admin user registration
+
 * Tue Nov 18 2025 Mat Booth <mat.booth@gmail.com> - 2.1.0-2
 - Fix machine learning service URL
 

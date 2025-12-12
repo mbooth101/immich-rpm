@@ -1,0 +1,25 @@
+From 9cef49d43aba5cd4d5a2daee178963aad3409e3e Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@gmail.com>
+Date: Fri, 12 Dec 2025 13:51:36 +0000
+Subject: [PATCH 5/5] allow skipping initial admin user registration
+
+---
+ server/src/repositories/user.repository.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/server/src/repositories/user.repository.ts b/server/src/repositories/user.repository.ts
+index 20b41c8..28da259 100644
+--- a/server/src/repositories/user.repository.ts
++++ b/server/src/repositories/user.repository.ts
+@@ -95,7 +95,7 @@ export class UserRepository {
+       .where('user.deletedAt', 'is', null)
+       .executeTakeFirst();
+ 
+-    return !!admin;
++    return !!admin || process.env.IMMICH_SKIP_ADMIN_REGISTRATION === 'true';
+   }
+ 
+   @GenerateSql({ params: [DummyValue.UUID] })
+-- 
+2.52.0
+

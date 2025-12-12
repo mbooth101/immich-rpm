@@ -1,7 +1,7 @@
 From a325021b22cdf15556ae614e1d2967e1cd13f428 Mon Sep 17 00:00:00 2001
 From: Mat Booth <mat.booth@gmail.com>
 Date: Thu, 13 Nov 2025 21:46:19 +0000
-Subject: [PATCH 2/4] remove apple header
+Subject: [PATCH 2/5] remove apple header
 
 ---
  web/src/routes/+layout.svelte | 2 --
@@ -28,5 +28,5 @@ index c159c46..cea8f23 100644
    {#if page.data.meta}
      <meta name="description" content={page.data.meta.description} />
 -- 
-2.51.1
+2.52.0
 

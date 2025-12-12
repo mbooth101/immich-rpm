@@ -1,7 +1,7 @@
 From 60a8866137ed9e4b17e7dcc933613f99753b4c21 Mon Sep 17 00:00:00 2001
 From: Mat Booth <mat.booth@gmail.com>
 Date: Fri, 14 Nov 2025 13:32:57 +0000
-Subject: [PATCH 3/4] skip failing off-by-one-hour tests
+Subject: [PATCH 3/5] skip failing off-by-one-hour tests
 
 ---
  server/src/services/metadata.service.spec.ts | 3 ---
@@ -36,5 +36,5 @@ index 0adb390..6463d7a 100644
  
      it('should prefer CreationDate over CreateDate', () => {
 -- 
-2.51.1
+2.52.0
 
