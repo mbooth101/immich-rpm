@@ -2,12 +2,16 @@
 
 Name:           python-%{pypi_name}
 Version:        0.7.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        2D and 3D face analysis
 
 License:        MIT
 URL:            https://github.com/deepinsight/insightface
 Source:         %{pypi_source %{pypi_name}}
+
+# This removes the dependency on albumentations, reducing the number of
+# packages that need to be maintained
+Patch: 0001-remove-mask_renderer-app.patch
 
 BuildRequires:  gcc-c++
 BuildRequires:  python3-devel
@@ -50,6 +54,9 @@ rm -rf %{buildroot}%{_includedir}
 %{_bindir}/insightface-cli
 
 %changelog
+* Sat Dec 13 2025 Mat Booth <mat.booth@gmail.com> - 0.7.3-2
+- Add patch to remove mask_renderer app
+
 * Thu Oct 30 2025 Mat Booth <mat.booth@gmail.com> - 0.7.3-1
 - Rebuild package
 
