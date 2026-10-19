@@ -6,7 +6,7 @@
 
 Name:           rust-pgrx-pg-config
 Version:        0.17.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Postgres pg_config wrapper for 'pgrx'
 
 License:        MIT
@@ -14,6 +14,10 @@ URL:            https://crates.io/crates/pgrx-pg-config
 Source:         %{crates_source}
 # Automatically generated patch to strip dependencies and normalize metadata
 Patch:          pgrx-pg-config-fix-metadata-auto.diff
+# Manually created patch for downstream crate metadata changes
+Patch:          pgrx-pg-config-fix-metadata.diff
+# Port to cargo_toml 1.0 API (package version is now a SemVer, not a String)
+Patch:          pgrx-pg-config-cargo-toml-1.0.patch
 
 BuildRequires:  cargo-rpm-macros >= 24
 
@@ -67,6 +71,9 @@ use the "default" feature of the "%{crate}" crate.
 %endif
 
 %changelog
+* Mon Oct 19 2026 Mat Booth <mat.booth@gmail.com> - 0.17.0-2
+- Patch to use latest toml library available in Fedora
+
 * Mon Oct 19 2026 Mat Booth <mat.booth@gmail.com> - 0.17.0-1
 - Update to 0.17.0
 
