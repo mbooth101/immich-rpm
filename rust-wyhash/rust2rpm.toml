@@ -1,0 +1,13 @@
+[package]
+summary = "Rust implementation of the WyHash fast hashing algorithm"
+
+[requires]
+build = [
+    "tomcli",
+]
+
+[scripts.prep]
+post = [
+    "# Do not depend on metrohash; it is only needed for benchmarks.",
+    "tomcli set Cargo.toml del dev-dependencies.metrohash",
+]
