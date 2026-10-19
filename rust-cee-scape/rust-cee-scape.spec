@@ -6,12 +6,15 @@
 
 Name:           rust-cee-scape
 Version:        0.2.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Cee-scape crate provides Rust access to setjmp and sigsetjmp functionality
 
 License:        MIT OR Apache-2.0
 URL:            https://crates.io/crates/cee-scape
 Source:         %{crates_source}
+
+# From upstream PR #28
+Patch:          0001-Fix-jmp_buf-definition-for-aarch64.patch
 
 BuildRequires:  cargo-rpm-macros >= 24
 
@@ -91,5 +94,8 @@ use the "use_c_to_interface_with_setjmp" feature of the "%{crate}" crate.
 %endif
 
 %changelog
+* Mon Oct 19 2026 Mat Booth <mat.booth@gmail.com> - 0.2.0-2
+- Backport patch to fix build on aarch64
+
 * Wed Oct 22 2025 Mat Booth <mat.booth@gmail.com> - 0.2.0-1
 - Initial package

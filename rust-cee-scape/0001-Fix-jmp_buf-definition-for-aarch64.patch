@@ -1,0 +1,38 @@
+From effd257a762f62b5197e1a91c11baf316d093aea Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mari=C3=A1n=20Kon=C4=8Dek?= <marian.koncek@mailbox.org>
+Date: Fri, 15 Aug 2025 16:13:03 +0200
+Subject: [PATCH] Fix jmp_buf definition for aarch64
+
+---
+ src/glibc_compat.rs | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/src/glibc_compat.rs b/src/glibc_compat.rs
+index f5a8392..e0d7f77 100644
+--- a/src/glibc_compat.rs
++++ b/src/glibc_compat.rs
+@@ -2,12 +2,21 @@ use std::marker::PhantomData;
+ 
+ /// `JmpBufFields` are the accessible fields when viewed via a JmpBuf pointer.
+ /// But also: You shouldn't be poking at these!
++
++#[cfg(target_arch = "x86_64")]
+ #[repr(C)]
+ pub struct JmpBufFields {
+     _buf: [u64; 8],
+     _neither_send_nor_sync: PhantomData<*const u8>,
+ }
+ 
++#[cfg(target_arch = "aarch64")]
++#[repr(C)]
++pub struct JmpBufFields {
++    _buf: [u64; 22],
++    _neither_send_nor_sync: PhantomData<*const u8>,
++}
++
+ /// `SigJmpBufFields` are the accessible fields when viewed via a SigJmpBuf pointer.
+ /// But also: You shouldn't be poking at these!
+ #[repr(C)]
+-- 
+2.55.0
+
