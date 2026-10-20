@@ -1,0 +1,130 @@
+From be7b1ca4457c5a0f721a98477632fbe30ed87856 Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@gmail.com>
+Date: Tue, 20 Oct 2026 21:35:41 +0100
+Subject: [PATCH] Use system antlr4 instead of bundled jar and vendored runtime
+
+---
+ build_helpers/build_helpers.py | 10 +---------
+ omegaconf/grammar_parser.py    |  6 +++---
+ omegaconf/grammar_visitor.py   |  2 +-
+ omegaconf/omegaconf.py         | 14 ++++++++------
+ omegaconf/typing.py            |  2 +-
+ requirements/base.txt          |  1 +
+ 6 files changed, 15 insertions(+), 20 deletions(-)
+
+diff --git a/build_helpers/build_helpers.py b/build_helpers/build_helpers.py
+index 370fdbe..43b6536 100644
+--- a/build_helpers/build_helpers.py
++++ b/build_helpers/build_helpers.py
+@@ -28,9 +28,7 @@ class ANTLRCommand(Command):  # type: ignore  # pragma: no cover
+             "OmegaConfGrammarParser.g4",
+         ]:
+             command = [
+-                "java",
+-                "-jar",
+-                str(build_dir / "bin" / "antlr-4.11.1-complete.jar"),
++                "antlr4",
+                 "-Dlanguage=Python3",
+                 "-o",
+                 str(project_root / "omegaconf" / "grammar" / "gen"),
+@@ -46,12 +44,6 @@ class ANTLRCommand(Command):  # type: ignore  # pragma: no cover
+ 
+             subprocess.check_call(command)
+ 
+-            self.announce(
+-                "Fixing imports for generated parsers",
+-                level=distutils.log.INFO,
+-            )
+-            self._fix_imports()
+-
+     def initialize_options(self) -> None:
+         pass
+ 
+diff --git a/omegaconf/grammar_parser.py b/omegaconf/grammar_parser.py
+index d150956..172f94e 100644
+--- a/omegaconf/grammar_parser.py
++++ b/omegaconf/grammar_parser.py
+@@ -11,8 +11,8 @@ from .grammar_visitor import (  # type: ignore
+     OmegaConfGrammarParser,
+ )
+ from .typing import Antlr4ParserRuleContext
+-from .vendor.antlr4 import CommonTokenStream, InputStream  # type: ignore[attr-defined]
+-from .vendor.antlr4.error.ErrorListener import ErrorListener
++from antlr4 import CommonTokenStream, InputStream  # type: ignore[attr-defined]
++from antlr4.error.ErrorListener import ErrorListener
+ 
+ # Used to cache grammar objects to avoid re-creating them on each call to `parse()`.
+ # We use a per-thread cache to make it thread-safe.
+@@ -120,7 +120,7 @@ def parse(
+ 
+         # The two lines below could be enabled in the future if we decide to switch
+         # to SLL prediction mode. Warning though, it has not been fully tested yet!
+-        # from omegaconf.vendor.antlr4 import PredictionMode
++        # from antlr4 import PredictionMode
+         # parser._interp.predictionMode = PredictionMode.SLL
+ 
+         # Note that although the input stream `istream` is implicitly cached within
+diff --git a/omegaconf/grammar_visitor.py b/omegaconf/grammar_visitor.py
+index db0f482..c7e6da9 100644
+--- a/omegaconf/grammar_visitor.py
++++ b/omegaconf/grammar_visitor.py
+@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, NoReturn, cast
+ from ._key_path import NodeInterpolationKey, split_key
+ from ._missing import _decode_missing_escape, _EscapedMissing, _has_missing_spelling
+ from .errors import InterpolationResolutionError
+-from .vendor.antlr4 import TerminalNode  # type: ignore[attr-defined]
++from antlr4 import TerminalNode  # type: ignore[attr-defined]
+ 
+ if TYPE_CHECKING:
+     from .base import Node  # noqa F401
+diff --git a/omegaconf/omegaconf.py b/omegaconf/omegaconf.py
+index 36bf87c..20e2a03 100644
+--- a/omegaconf/omegaconf.py
++++ b/omegaconf/omegaconf.py
+@@ -98,16 +98,18 @@ _STRICT_PRIMITIVE_TYPES = (bool, bytes, float, int, str)
+ 
+ 
+ def _resolver_warning_stacklevel() -> int:
+-    package_dir = pathlib.Path(__file__).parent.resolve()
++    import antlr4
++
++    package_dirs = (
++        pathlib.Path(__file__).parent.resolve(),
++        pathlib.Path(antlr4.__file__).parent.resolve(),
++    )
+     frame = inspect.currentframe()
+     stacklevel = 1
+     while frame is not None and frame.f_back is not None:
+         frame = frame.f_back
+-        if (
+-            not pathlib.Path(frame.f_code.co_filename)
+-            .resolve()
+-            .is_relative_to(package_dir)
+-        ):
++        filename = pathlib.Path(frame.f_code.co_filename).resolve()
++        if not any(filename.is_relative_to(d) for d in package_dirs):
+             break
+         stacklevel += 1
+     return stacklevel
+diff --git a/omegaconf/typing.py b/omegaconf/typing.py
+index 5264383..93babeb 100644
+--- a/omegaconf/typing.py
++++ b/omegaconf/typing.py
+@@ -1,6 +1,6 @@
+ from typing import TypeAlias
+ 
+-from .vendor.antlr4.ParserRuleContext import ParserRuleContext
++from antlr4.ParserRuleContext import ParserRuleContext
+ 
+ # The antlr4 class `ParserRulerContext` is not a valid type for static type checkers
+ # for a number of reasons, including lack of strict typing in antlr4-python3-runtime
+diff --git a/requirements/base.txt b/requirements/base.txt
+index 65e3cab..ce75d5f 100644
+--- a/requirements/base.txt
++++ b/requirements/base.txt
+@@ -1 +1,2 @@
+ PyYAML>=5.1.0
++antlr4-python3-runtime==4.13.*
+-- 
+2.55.0
+
