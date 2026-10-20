@@ -1,0 +1,39 @@
+From 8db7221ea0f0e24487563ed36b2294a90e97be02 Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@gmail.com>
+Date: Tue, 20 Oct 2026 06:45:29 +0100
+Subject: [PATCH 2/3] Patch out unused wasm support
+
+---
+ crates/xtask/Cargo.toml  | 2 +-
+ crates/xtask/src/main.rs | 2 --
+ 2 files changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/crates/xtask/Cargo.toml b/crates/xtask/Cargo.toml
+index 74fbf28..c7c9681 100644
+--- a/crates/xtask/Cargo.toml
++++ b/crates/xtask/Cargo.toml
+@@ -6,7 +6,7 @@ publish = false
+ 
+ [dependencies]
+ clap = { version = "4.5.58", features = ["derive", "env"] }
+-object = { version = "0.38.1", features = ["read", "wasm"] }
++object = { version = "0.38.1", features = ["read"] }
+ serde.workspace = true
+ serde_json = "1.0.149"
+ shlex = "2.0"
+diff --git a/crates/xtask/src/main.rs b/crates/xtask/src/main.rs
+index f310234..1ee90ca 100644
+--- a/crates/xtask/src/main.rs
++++ b/crates/xtask/src/main.rs
+@@ -77,8 +77,6 @@ impl RustcCfg {
+             Ok(".dylib")
+         } else if self.is_windows {
+             Ok(".dll")
+-        } else if self.is_emscripten {
+-            Ok(".wasm")
+         } else if self.is_unix {
+             Ok(".so")
+         } else {
+-- 
+2.55.0
+

@@ -1,0 +1,49 @@
+From d0257c82537ae97473f3f2d3e6a0a228eb7dbb39 Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@gmail.com>
+Date: Mon, 19 Oct 2026 22:29:39 +0100
+Subject: [PATCH 1/3] Fix dependency requirements according to what's available
+ in Fedora
+
+---
+ Cargo.toml              | 4 ++--
+ crates/xtask/Cargo.toml | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index 743081f..1678b34 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -43,7 +43,7 @@ pgrx = { version = "=0.17.0", default-features = false, features = ["cshim"] }
+ pgrx-catalog = "0.3.2"
+ rand.workspace = true
+ rayon.workspace = true
+-rusqlite = { version = "0.38.0", features = ["bundled"] }
++rusqlite = "0.38.0"
+ seq-macro.workspace = true
+ serde.workspace = true
+ toml = "1.0.0"
+@@ -74,7 +74,7 @@ rand_chacha = "0.10.0"
+ rayon = "1.11.0"
+ seq-macro = "0.3.6"
+ serde = { version = "1.0.228", features = ["derive"] }
+-validator = { version = "0.20.0", features = ["derive"] }
++validator = { version = "0.21.0", features = ["derive"] }
+ wyhash = "0.6.0"
+ zerocopy = { version = "0.8.39", features = ["derive"] }
+ 
+diff --git a/crates/xtask/Cargo.toml b/crates/xtask/Cargo.toml
+index 8b092d7..74fbf28 100644
+--- a/crates/xtask/Cargo.toml
++++ b/crates/xtask/Cargo.toml
+@@ -9,7 +9,7 @@ clap = { version = "4.5.58", features = ["derive", "env"] }
+ object = { version = "0.38.1", features = ["read", "wasm"] }
+ serde.workspace = true
+ serde_json = "1.0.149"
+-shlex = "1.3.0"
++shlex = "2.0"
+ target-triple = "1.0.0"
+ tempfile = "3.25.0"
+ 
+-- 
+2.55.0
+
