@@ -2,7 +2,7 @@
 
 Name:           python-%{pypi_name}
 Version:        3.10.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Awesome OCR Library
 
 License:        Apache-2.0
@@ -15,8 +15,6 @@ BuildRequires:  python3-devel
 # Test dependencies
 BuildRequires:  python3dist(pytest)
 BuildRequires:  python3-onnxruntime
-BuildRequires:  python3-openvino
-BuildRequires:  python3-torch
 
 %description
 Open source OCR for the security of the digital world.
@@ -49,9 +47,8 @@ cd python
 %pyproject_save_files %{pypi_name}
 
 %check
-# The MNN, Paddle and TensorRT inference engines are not available in Fedora,
-# and some pytorch transforms import a "pytorchocr" module that is not shipped
-%pyproject_check_import -e 'rapidocr.inference_engine.mnn*' -e 'rapidocr.inference_engine.paddle*' -e 'rapidocr.inference_engine.tensorrt*' -e 'rapidocr.inference_engine.pytorch.networks.transforms.tbsrn' -e 'rapidocr.inference_engine.pytorch.networks.transforms.tps' -e 'rapidocr.inference_engine.pytorch.networks.transforms.tsrn'
+# Only the onnxruntime inference engine is needed by immich-machine-learning
+%pyproject_check_import -e 'rapidocr.inference_engine.mnn*' -e 'rapidocr.inference_engine.openvino*' -e 'rapidocr.inference_engine.paddle*' -e 'rapidocr.inference_engine.pytorch*' -e 'rapidocr.inference_engine.tensorrt*'
 cd python
 # Tests that run OCR need to download models from the internet, also skip
 # tests for inference engines that are not available in Fedora
@@ -63,6 +60,7 @@ cd python
   --ignore=tests/test_return_word.py \
   --ignore=tests/test_to_other_format.py \
   --ignore=tests/test_vis.py \
+  --ignore=tests/test_engine_config.py \
   --deselect='tests/test_cli.py::test_cli[' \
   --deselect=tests/test_cli.py::test_cli_download_models \
   --deselect=tests/test_cli.py::test_cli_vis[ \
@@ -92,6 +90,9 @@ cd python
 %{_bindir}/rapidocr
 
 %changelog
+* Wed Oct 21 2026 Mat Booth <mat.booth@gmail.com> - 3.10.0-2
+- Remove deps on back-ends we don't use
+
 * Tue Oct 20 2026 Mat Booth <mat.booth@gmail.com> - 3.10.0-1
 - Initial RapidOCR package
 
