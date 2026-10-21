@@ -8,6 +8,8 @@ Requires=postgresql.service valkey.service
 Type=simple
 User=immich
 Group=immich
+Environment=IMMICH_ENV=production
+Environment=NODE_ENV=production
 EnvironmentFile=/etc/sysconfig/immich
 WorkingDirectory=/usr/lib/immich/app
 ExecStart=/usr/lib/immich/app/server/bin/start.sh

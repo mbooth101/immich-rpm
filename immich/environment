@@ -3,7 +3,6 @@
 # Documentation for all the supported env variables can be found here:
 # https://immich.app/docs/install/environment-variables
 
-IMMICH_ENV=production
 IMMICH_BUILD_DATA=/usr/lib/immich
 IMMICH_MEDIA_LOCATION=/var/lib/immich
 

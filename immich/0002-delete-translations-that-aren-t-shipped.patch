@@ -1,0 +1,106 @@
+From 7b710100a56ff29326ba1deee3c7829774dbffeb Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@gmail.com>
+Date: Wed, 21 Oct 2026 18:36:30 +0100
+Subject: [PATCH 2/2] delete translations that aren't shipped
+
+---
+ web/src/lib/constants.ts | 35 -----------------------------------
+ 1 file changed, 35 deletions(-)
+
+diff --git a/web/src/lib/constants.ts b/web/src/lib/constants.ts
+index 389ebbe..617f32b 100644
+--- a/web/src/lib/constants.ts
++++ b/web/src/lib/constants.ts
+@@ -247,10 +247,8 @@ export const defaultLang: Lang = { name: 'English', code: 'en', loader: () => im
+ 
+ export const langs: Lang[] = [
+   { name: 'Afrikaans', code: 'af', loader: () => import('$i18n/af.json') },
+-  { name: 'Arabic', code: 'ar', loader: () => import('$i18n/ar.json'), rtl: true },
+   { name: 'Azerbaijani', code: 'az', loader: () => import('$i18n/az.json'), rtl: true },
+   { name: 'Belarusian', code: 'be', loader: () => import('$i18n/be.json') },
+-  { name: 'Bulgarian', code: 'bg', loader: () => import('$i18n/bg.json') },
+   { name: 'Bislama', code: 'bi', loader: () => import('$i18n/bi.json') },
+   { name: 'Bengali', code: 'bn', loader: () => import('$i18n/bn.json') },
+   { name: 'Breton', code: 'br', loader: () => import('$i18n/br.json') },
+@@ -261,7 +259,6 @@ export const langs: Lang[] = [
+   { name: 'German', code: 'de', loader: () => import('$i18n/de.json') },
+   { name: 'German (Switzerland)', code: 'de-CH', weblateCode: 'de_CH', loader: () => import('$i18n/de_CH.json') },
+   defaultLang,
+-  { name: 'Greek', code: 'el', loader: () => import('$i18n/el.json') },
+   { name: 'Esperanto', code: 'eo', loader: () => import('$i18n/eo.json') },
+   { name: 'Spanish', code: 'es', loader: () => import('$i18n/es.json') },
+   { name: 'Estonian', code: 'et', loader: () => import('$i18n/et.json') },
+@@ -274,29 +271,22 @@ export const langs: Lang[] = [
+   { name: 'Galician', code: 'gl', loader: () => import('$i18n/gl.json') },
+   { name: 'Alemannic', code: 'gsw', loader: () => import('$i18n/gsw.json') },
+   { name: 'Gujarati', code: 'gu', loader: () => import('$i18n/gu.json') },
+-  { name: 'Hebrew', code: 'he', loader: () => import('$i18n/he.json'), rtl: true },
+-  { name: 'Hindi', code: 'hi', loader: () => import('$i18n/hi.json') },
+   { name: 'Croatian', code: 'hr', loader: () => import('$i18n/hr.json') },
+   { name: 'Hungarian', code: 'hu', loader: () => import('$i18n/hu.json') },
+   { name: 'Armenian', code: 'hy', loader: () => import('$i18n/hy.json') },
+   { name: 'Indonesian', code: 'id', loader: () => import('$i18n/id.json') },
+   { name: 'Icelandic', code: 'is', loader: () => import('$i18n/is.json') },
+   { name: 'Italian', code: 'it', loader: () => import('$i18n/it.json') },
+-  { name: 'Japanese', code: 'ja', loader: () => import('$i18n/ja.json') },
+   { name: 'Georgian', code: 'ka', loader: () => import('$i18n/ka.json') },
+   { name: 'Kazakh', code: 'kk', loader: () => import('$i18n/kk.json') },
+   { name: 'Khmer (Central)', code: 'km', loader: () => import('$i18n/km.json') },
+   { name: 'Kurdish (Northern)', code: 'kmr', loader: () => import('$i18n/kmr.json'), rtl: true },
+-  { name: 'Kannada', code: 'kn', loader: () => import('$i18n/kn.json') },
+-  { name: 'Korean', code: 'ko', loader: () => import('$i18n/ko.json') },
+   { name: 'Luxembourgish', code: 'lb', loader: () => import('$i18n/lb.json') },
+   { name: 'Lithuanian', code: 'lt', loader: () => import('$i18n/lt.json') },
+   { name: 'Latvian', code: 'lv', loader: () => import('$i18n/lv.json') },
+   { name: 'Malay (Pattani)', code: 'mfa', loader: () => import('$i18n/mfa.json') },
+   { name: 'Macedonian', code: 'mk', loader: () => import('$i18n/mk.json') },
+-  { name: 'Malayalam', code: 'ml', loader: () => import('$i18n/ml.json') },
+   { name: 'Mongolian', code: 'mn', loader: () => import('$i18n/mn.json') },
+-  { name: 'Marathi', code: 'mr', loader: () => import('$i18n/mr.json') },
+   { name: 'Malay', code: 'ms', loader: () => import('$i18n/ms.json') },
+   { name: 'Norwegian Bokmål', code: 'nb-NO', weblateCode: 'nb_NO', loader: () => import('$i18n/nb_NO.json') },
+   { name: 'Dutch', code: 'nl', loader: () => import('$i18n/nl.json') },
+@@ -306,40 +296,15 @@ export const langs: Lang[] = [
+   { name: 'Portuguese', code: 'pt', loader: () => import('$i18n/pt.json') },
+   { name: 'Portuguese (Brazil) ', code: 'pt-BR', weblateCode: 'pt_BR', loader: () => import('$i18n/pt_BR.json') },
+   { name: 'Romanian', code: 'ro', loader: () => import('$i18n/ro.json') },
+-  { name: 'Russian', code: 'ru', loader: () => import('$i18n/ru.json') },
+   { name: 'Sinhala', code: 'si', loader: () => import('$i18n/si.json') },
+   { name: 'Slovak', code: 'sk', loader: () => import('$i18n/sk.json') },
+   { name: 'Slovenian', code: 'sl', loader: () => import('$i18n/sl.json') },
+   { name: 'Albanian', code: 'sq', loader: () => import('$i18n/sq.json') },
+-  {
+-    name: 'Serbian (Cyrillic)',
+-    code: 'sr-Cyrl',
+-    weblateCode: 'sr_Cyrl',
+-    loader: () => import('$i18n/sr_Cyrl.json'),
+-  },
+-  { name: 'Serbian (Latin)', code: 'sr-Latn', weblateCode: 'sr_Latn', loader: () => import('$i18n/sr_Latn.json') },
+   { name: 'Swedish', code: 'sv', loader: () => import('$i18n/sv.json') },
+-  { name: 'Tamil', code: 'ta', loader: () => import('$i18n/ta.json') },
+   { name: 'Telugu', code: 'te', loader: () => import('$i18n/te.json') },
+-  { name: 'Thai', code: 'th', loader: () => import('$i18n/th.json') },
+   { name: 'Turkish', code: 'tr', loader: () => import('$i18n/tr.json') },
+-  { name: 'Ukrainian', code: 'uk', loader: () => import('$i18n/uk.json') },
+   { name: 'Urdu', code: 'ur', loader: () => import('$i18n/ur.json'), rtl: true },
+   { name: 'Uzbek', code: 'uz', loader: () => import('$i18n/uz.json') },
+-  { name: 'Vietnamese', code: 'vi', loader: () => import('$i18n/vi.json') },
+-  { name: 'Cantonese (Traditional Han script)', code: 'yue_Hant', loader: () => import('$i18n/yue_Hant.json') },
+-  {
+-    name: 'Chinese (Traditional)',
+-    code: 'zh-TW',
+-    weblateCode: 'zh_Hant',
+-    loader: () => import('$i18n/zh_Hant.json'),
+-  },
+-  {
+-    name: 'Chinese (Simplified)',
+-    code: 'zh-CN',
+-    weblateCode: 'zh_Hans',
+-    loader: () => import('$i18n/zh_Hans.json'),
+-  },
+   { name: 'Development (keys only)', code: 'dev', loader: () => Promise.resolve({ default: {} }) },
+ ];
+ 
+-- 
+2.56.0
+

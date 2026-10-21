@@ -11,13 +11,16 @@ if [ ! -f "v$VERSION.tar.xz" ] ; then
 
 	pushd immich-$VERSION
 	# Unneeded for RPM build
+	rm -r .github/
 	rm -r design/
 	rm -r docs/
 	rm -r mobile/
-	# Fonts already shipped in Fedora
-	rm web/src/lib/assets/fonts/overpass/*.ttf
-	# Pointless splashes for iOS
-	rm web/src/lib/assets/apple/*.png
+	# Packaged separately
+	rm -r machine-learning/
+	# Big language translations that we don't need
+	rm i18n/{ta,ml,hi,el,th,mr,uk,kn,ru,bg,ar,he,ja,vi,ko,sr_Cyrl,sr_Latn,yue_Hant,zh_Hans,zh_Hant}.json
+	# End to end tests we can't run
+	rm -r e2e/ e2e-auth-server/
 	popd
 
 	tar caf v$VERSION.tar.xz immich-$VERSION
