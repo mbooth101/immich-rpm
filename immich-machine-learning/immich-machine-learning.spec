@@ -1,8 +1,8 @@
 %global pypi_name immich_ml
 
 Name:           immich-machine-learning
-Version:        2.1.0
-Release:        3%{?dist}
+Version:        2.7.5
+Release:        1%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 # One file is Apache 2.0 licensed:
@@ -42,10 +42,11 @@ Provides: %{name} = %{version}-%{release}
 
 # Fix dep on opencv
 sed -i -e 's/opencv-python-headless/opencv/' pyproject.toml
-# Fix dep on pillow
-sed -i -e '/pillow/s/11/12/' pyproject.toml
-# Fix dep on numpy
-sed -i -e '/numpy/s/<2//' pyproject.toml
+# Relax version bounds on deps that differ in Fedora
+sed -i -e 's/"pillow[^"]*"/"pillow"/' \
+       -e '/"numpy/s/<[0-9.]*//' \
+       -e '/"huggingface-hub/s/,<[0-9.]*//' \
+       -e 's/"onnxruntime>=[0-9.]*,/"onnxruntime/g' pyproject.toml
 # Call python3 explicitly
 sed -i -e 's/"python"/"python3"/' immich_ml/__main__.py
 
@@ -92,6 +93,9 @@ install -dm 0750 %{buildroot}%{_localstatedir}/lib/%{name}
 %dir %attr(750,immich_ml,immich_ml) %{_localstatedir}/lib/%{name}
 
 %changelog
+* Wed Oct 21 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-1
+- Update to latest 2.x release
+
 * Sat Dec 13 2025 Mat Booth <mat.booth@gmail.com> - 2.1.0-3
 - Rebuild against new python-insightface
 - Fix config file installation
