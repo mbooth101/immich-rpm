@@ -3,7 +3,7 @@
 
 Name:           immich
 Version:        2.7.5
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 # Bundled GoogleSans and GoogleSansCode web fonts are OFL-1.1
@@ -30,9 +30,14 @@ Patch: 0002-delete-translations-that-aren-t-shipped.patch
 
 ExclusiveArch: %{nodejs_arches}
 
-Requires: nodejs24
+%if 0%{?fedora} >= 44
+Requires: nodejs24-bin
 # Fedora's node is built with small-icu, which crashes on Intl.Segmenter
 Requires: nodejs24-full-i18n
+%else
+BuildRequires: nodejs22
+BuildRequires: nodejs22-full-i18n
+%endif
 Requires: python3-immich_ml+cpu = %{version}
 Requires: valkey
 Requires: VectorChord
@@ -52,10 +57,17 @@ Requires: vips-magick
 
 BuildRequires: gcc-c++
 BuildRequires: pnpm
+%if 0%{?fedora} >= 44
 BuildRequires: nodejs24-bin
 BuildRequires: nodejs24-npm-bin
 BuildRequires: nodejs24-devel
 BuildRequires: nodejs24-full-i18n
+%else
+BuildRequires: nodejs22
+BuildRequires: nodejs22-npm
+BuildRequires: nodejs22-devel
+BuildRequires: nodejs22-full-i18n
+%endif
 BuildRequires: python3-devel
 BuildRequires: vips-devel
 BuildRequires: systemd-rpm-macros
@@ -163,6 +175,9 @@ export CI=1
 %dir %attr(0750,immich,immich) %{_sharedstatedir}/immich
 
 %changelog
+* Thu Oct 22 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-3
+- Fix build on Fedora 43
+
 * Thu Oct 22 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-2
 - Add Requires on ffmpeg and mimalloc
 
