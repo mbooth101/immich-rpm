@@ -3,7 +3,7 @@
 
 Name:           immich
 Version:        2.7.5
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 # Bundled GoogleSans and GoogleSansCode web fonts are OFL-1.1
@@ -100,11 +100,27 @@ export CI=1
 SHARP_IGNORE_GLOBAL_LIBVIPS=true pnpm --filter immich --frozen-lockfile build
 SHARP_FORCE_GLOBAL_LIBVIPS=true pnpm --filter immich --frozen-lockfile --prod --no-optional deploy %{_builddir}/server-pruned
 
-# Remove pre-built binaries for other platforms and libc variants
+# Remove left-overs from the builf of sharp native
+mv %{_builddir}/server-pruned/node_modules/.pnpm/sharp@0.34.5/node_modules/sharp/src/build/Release/sharp-linux-*.node .
+rm -r %{_builddir}/server-pruned/node_modules/.pnpm/sharp@0.34.5/node_modules/sharp/src/build
+mkdir -p %{_builddir}/server-pruned/node_modules/.pnpm/sharp@0.34.5/node_modules/sharp/src/build/Release
+mv sharp-linux-*.node %{_builddir}/server-pruned/node_modules/.pnpm/sharp@0.34.5/node_modules/sharp/src/build/Release
+
+# Remove pre-built bcrypt binaries for other platforms and libc variants
 rm -r %{_builddir}/server-pruned/node_modules/.pnpm/bcrypt*/node_modules/bcrypt/prebuilds/linux-arm
 rm -r %{_builddir}/server-pruned/node_modules/.pnpm/bcrypt*/node_modules/bcrypt/prebuilds/linux*/bcrypt.musl.node
 rm -r %{_builddir}/server-pruned/node_modules/.pnpm/bcrypt*/node_modules/bcrypt/prebuilds/darwin*
 rm -r %{_builddir}/server-pruned/node_modules/.pnpm/bcrypt*/node_modules/bcrypt/prebuilds/win32*
+%ifnarch aarch64
+rm -r %{_builddir}/server-pruned/node_modules/.pnpm/bcrypt*/node_modules/bcrypt/prebuilds/linux-arm64
+%endif
+%ifnarch x86_64
+rm -r %{_builddir}/server-pruned/node_modules/.pnpm/bcrypt*/node_modules/bcrypt/prebuilds/linux-x64
+%endif
+
+# Remove modules for the Bare JS runtime -- I'm pretty sure immich never
+# loads these, and they contain unwanted pre-built natives
+find %{_builddir}/server-pruned/node_modules/.pnpm -depth -name 'bare-*' -exec rm -rf {} +
 
 # Build web component
 SHARP_IGNORE_GLOBAL_LIBVIPS=true pnpm --filter @immich/sdk --filter immich-web --frozen-lockfile --force install
@@ -175,6 +191,9 @@ export CI=1
 %dir %attr(0750,immich,immich) %{_sharedstatedir}/immich
 
 %changelog
+* Thu Oct 22 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-4
+- Remove unusued pre-built native binary artefacts and build left-overs
+
 * Thu Oct 22 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-3
 - Fix build on Fedora 43
 
