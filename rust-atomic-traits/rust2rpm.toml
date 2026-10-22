@@ -1,2 +1,0 @@
-[features]
-hide = [ "loom", "loom_atomics" ]
