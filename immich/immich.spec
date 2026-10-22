@@ -3,7 +3,7 @@
 
 Name:           immich
 Version:        2.7.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 # Bundled GoogleSans and GoogleSansCode web fonts are OFL-1.1
@@ -37,6 +37,14 @@ Requires: python3-immich_ml+cpu = %{version}
 Requires: valkey
 Requires: VectorChord
 
+# Immich uses ffmpeg and ffprobe executables for transcoding
+# We'll get the Fedora version by default, but RPMFusion version
+# is also acceptible
+Requires: (ffmpeg-free or ffmpeg)
+
+# Immich prefers mimalloc by adding it to LD_PRELOAD
+Requires: mimalloc
+
 # Explicitly require vips plug-ins for image format support
 Requires: vips-heif
 Requires: vips-jxl
@@ -65,6 +73,12 @@ without sacrificing your privacy.}
 
 %prep
 %autosetup -p1 -n %{name}-%{version}
+
+%if 0%{?fedora} >= 46
+sed -i -e '/^lib_path=/s|".*"|"%{_libdir}/libmimalloc.so.3"|' server/bin/start.sh
+%else
+sed -i -e '/^lib_path=/s|".*"|"%{_libdir}/libmimalloc.so.2"|' server/bin/start.sh
+%endif
 
 %build
 # These build steps essentially mirror those performed in the Dockerfile
@@ -149,6 +163,9 @@ export CI=1
 %dir %attr(0750,immich,immich) %{_sharedstatedir}/immich
 
 %changelog
+* Thu Oct 22 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-2
+- Add Requires on ffmpeg and mimalloc
+
 * Wed Oct 21 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-1
 - Update to latest 2.x release
 
