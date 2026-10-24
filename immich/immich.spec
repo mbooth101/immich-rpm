@@ -3,7 +3,7 @@
 
 Name:           immich
 Version:        2.7.5
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 # Bundled GoogleSans and GoogleSansCode web fonts are OFL-1.1
@@ -58,6 +58,7 @@ Requires: vips-magick
 
 BuildRequires: gcc-c++
 BuildRequires: pnpm
+BuildRequires: binaryen
 %if 0%{?fedora} >= 44
 BuildRequires: nodejs24-bin
 BuildRequires: nodejs24-npm-bin
@@ -132,6 +133,23 @@ pnpm --filter @immich/sdk --filter @immich/cli --frozen-lockfile install
 pnpm --filter @immich/sdk --filter @immich/cli build
 pnpm --filter @immich/cli --prod --no-optional deploy %{_builddir}/cli-pruned
 
+# Plugin component build requires extism-js to be on the path, but it's
+# not in Fedora, so extract it from upstream release artifacts
+mkdir -p %{_builddir}/extism-bin
+%ifarch x86_64
+wget -O extism-js.gz https://github.com/extism/js-pdk/releases/download/v1.6.0/extism-js-x86_64-linux-v1.6.0.gz
+%endif
+%ifarch aarch64
+wget -O extism-js.gz https://github.com/extism/js-pdk/releases/download/v1.6.0/extism-js-aarch64-linux-v1.6.0.gz
+%endif
+gzip -dc extism-js.gz > %{_builddir}/extism-bin/extism-js
+chmod +x %{_builddir}/extism-bin/extism-js
+export PATH=%{_builddir}/extism-bin:$PATH
+
+# Build core plugin component
+pnpm --filter plugins --frozen-lockfile install
+pnpm --filter plugins build
+
 %install
 # User/Group configuration
 install -Dpm 0644 %{SOURCE1} %{buildroot}%{_sysusersdir}/%{name}.conf
@@ -147,6 +165,10 @@ cp -pr %{_builddir}/server-pruned/* %{buildroot}%{_prefix}/lib/immich/app/server
 install -m 0755 -d %{buildroot}%{_prefix}/lib/immich/app/cli
 cp -pr %{_builddir}/cli-pruned/* %{buildroot}%{_prefix}/lib/immich/app/cli
 #install -Dpm 0755 immich-cli/bin/%{name} %{buildroot}%{_bindir}/%{name}
+
+# Install core plugin component
+install -Dpm 0644 plugins/manifest.json %{buildroot}%{_prefix}/lib/immich/corePlugin/manifest.json
+install -Dpm 0644 plugins/dist/plugin.wasm %{buildroot}%{_prefix}/lib/immich/corePlugin/dist/plugin.wasm
 
 # Install web component
 install -m 0755 -d %{buildroot}%{_prefix}/lib/immich/www
@@ -187,11 +209,15 @@ export CI=1
 %config(noreplace) %{_sysconfdir}/sysconfig/%{name}
 %dir %{_prefix}/lib/immich
 %{_prefix}/lib/immich/app
+%{_prefix}/lib/immich/corePlugin
 %{_prefix}/lib/immich/geodata
 %{_prefix}/lib/immich/www
 %dir %attr(0750,immich,immich) %{_sharedstatedir}/immich
 
 %changelog
+* Sat Oct 24 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-6
+- Build and install the core workflow plugin
+
 * Sat Oct 24 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-5
 - Drop patch to node executable name
 
