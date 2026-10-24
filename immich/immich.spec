@@ -59,6 +59,7 @@ Requires: vips-magick
 BuildRequires: gcc-c++
 BuildRequires: pnpm
 BuildRequires: binaryen
+BuildRequires: wget
 %if 0%{?fedora} >= 44
 BuildRequires: nodejs24-bin
 BuildRequires: nodejs24-npm-bin
