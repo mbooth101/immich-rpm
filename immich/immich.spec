@@ -96,6 +96,7 @@ sed -i -e '/^lib_path=/s|".*"|"%{_libdir}/libmimalloc.so.2"|' server/bin/start.s
 %build
 # These build steps essentially mirror those performed in the Dockerfile
 export CI=1
+export npm_config_manage_package_manager_versions=false
 
 # Build server component
 SHARP_IGNORE_GLOBAL_LIBVIPS=true pnpm --filter immich --frozen-lockfile build
@@ -196,6 +197,8 @@ install -d %{buildroot}%{_sharedstatedir}/immich
 
 %check
 export CI=1
+export npm_config_manage_package_manager_versions=false
+
 (cd server && pnpm test)
 (cd cli && pnpm test)
 
