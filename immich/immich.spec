@@ -3,7 +3,7 @@
 
 Name:           immich
 Version:        2.7.5
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 # Bundled GoogleSans and GoogleSansCode web fonts are OFL-1.1
@@ -191,6 +191,9 @@ export CI=1
 %dir %attr(0750,immich,immich) %{_sharedstatedir}/immich
 
 %changelog
+* Sat Oct 24 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-5
+- Drop patch to node executable name
+
 * Thu Oct 22 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-4
 - Remove unusued pre-built native binary artefacts and build left-overs
 

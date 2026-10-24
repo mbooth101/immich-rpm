@@ -1,4 +1,4 @@
-From e831ce6232e337fad0cc81d83145d885c53c8914 Mon Sep 17 00:00:00 2001
+From 917e51529b5eff417feffe9d73451e7b63e2ccc3 Mon Sep 17 00:00:00 2001
 From: Mat Booth <mat.booth@gmail.com>
 Date: Wed, 21 Oct 2026 18:36:30 +0100
 Subject: [PATCH 2/2] delete translations that aren't shipped
