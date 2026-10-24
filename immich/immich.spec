@@ -35,8 +35,9 @@ Requires: nodejs24-bin
 # Fedora's node is built with small-icu, which crashes on Intl.Segmenter
 Requires: nodejs24-full-i18n
 %else
-BuildRequires: nodejs22
-BuildRequires: nodejs22-full-i18n
+Requires: nodejs22
+# Fedora's node is built with small-icu, which crashes on Intl.Segmenter
+Requires: nodejs22-full-i18n
 %endif
 Requires: python3-immich_ml+cpu = %{version}
 Requires: valkey
