@@ -1,7 +1,7 @@
-From 2a46517f65b280376fdfc4c4b2b019047f5c938b Mon Sep 17 00:00:00 2001
+From 6f26058f4ed574d58bb4f38dabf49189660fa3e1 Mon Sep 17 00:00:00 2001
 From: Mat Booth <mat.booth@gmail.com>
 Date: Wed, 21 Oct 2026 16:00:12 +0100
-Subject: [PATCH 1/2] more robust scripts
+Subject: [PATCH] more robust scripts
 
 ---
  server/bin/start.sh | 6 +++---
@@ -32,5 +32,5 @@ index 15f4411..23e1d3b 100755
    if [ "$CPU_CORES" -gt 4 ]; then
      export UV_THREADPOOL_SIZE=$CPU_CORES
 -- 
-2.55.0
+2.56.0
 

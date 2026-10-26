@@ -17,10 +17,10 @@ if [ ! -f "v$VERSION.tar.xz" ] ; then
 	rm -r mobile/
 	# Packaged separately
 	rm -r machine-learning/
-	# Big language translations that we don't need
-	rm i18n/{ta,ml,hi,el,th,mr,uk,kn,ru,bg,ar,he,ja,vi,ko,sr_Cyrl,sr_Latn,yue_Hant,zh_Hans,zh_Hant}.json
 	# End to end tests we can't run
 	rm -r e2e/ e2e-auth-server/
+	# Large font files
+	rm web/src/lib/assets/fonts/*/*.ttf
 	popd
 
 	tar caf v$VERSION.tar.xz immich-$VERSION

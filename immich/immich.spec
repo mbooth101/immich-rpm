@@ -25,8 +25,6 @@ Source13: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/
 
 # Fix some hardcoded assumptions about PATH contents
 Patch: 0001-more-robust-scripts.patch
-# Some large files were stripped to make the source tarball smaller
-Patch: 0002-delete-translations-that-aren-t-shipped.patch
 
 ExclusiveArch: %{nodejs_arches}
 
@@ -124,6 +122,14 @@ rm -r %{_builddir}/server-pruned/node_modules/.pnpm/bcrypt*/node_modules/bcrypt/
 # Remove modules for the Bare JS runtime -- I'm pretty sure immich never
 # loads these, and they contain unwanted pre-built natives
 find %{_builddir}/server-pruned/node_modules/.pnpm -depth -name 'bare-*' -exec rm -rf {} +
+
+# Web fonts are removed from the source tarball due to their size, so fetch
+# them from upstream Google Fonts repository
+GF_COMMIT=b7c8331cf620346575487ef8db0e2c729f014675
+wget -O web/src/lib/assets/fonts/GoogleSans/GoogleSans.ttf \
+  "https://raw.githubusercontent.com/google/fonts/$GF_COMMIT/ofl/googlesans/GoogleSans%5BGRAD%2Copsz%2Cwght%5D.ttf"
+wget -O web/src/lib/assets/fonts/GoogleSansCode/GoogleSansCode.ttf \
+  "https://raw.githubusercontent.com/google/fonts/$GF_COMMIT/ofl/googlesanscode/GoogleSansCode%5Bwght%5D.ttf"
 
 # Build web component
 SHARP_IGNORE_GLOBAL_LIBVIPS=true pnpm --filter @immich/sdk --filter immich-web --frozen-lockfile --force install
