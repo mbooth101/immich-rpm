@@ -41,3 +41,7 @@ REDIS_PORT=6379
 REDIS_USERNAME=
 REDIS_PASSWORD=
 REDIS_DBINDEX=0
+
+# Use source maps to get file and line numbers in stack traces, only enable
+# debugging immich
+# NODE_OPTIONS=--enable-source-maps

@@ -3,7 +3,7 @@
 
 Name:           immich
 Version:        2.7.5
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 # Bundled GoogleSans and GoogleSansCode web fonts are OFL-1.1
@@ -102,11 +102,17 @@ export npm_config_manage_package_manager_versions=false
 SHARP_IGNORE_GLOBAL_LIBVIPS=true pnpm --filter immich --frozen-lockfile build
 SHARP_FORCE_GLOBAL_LIBVIPS=true pnpm --filter immich --frozen-lockfile --prod --no-optional deploy %{_builddir}/server-pruned
 
-# Remove left-overs from the builf of sharp native
+# Remove left-overs from the build of sharp binaries
 mv %{_builddir}/server-pruned/node_modules/.pnpm/sharp@0.34.5/node_modules/sharp/src/build/Release/sharp-linux-*.node .
 rm -r %{_builddir}/server-pruned/node_modules/.pnpm/sharp@0.34.5/node_modules/sharp/src/build
 mkdir -p %{_builddir}/server-pruned/node_modules/.pnpm/sharp@0.34.5/node_modules/sharp/src/build/Release
 mv sharp-linux-*.node %{_builddir}/server-pruned/node_modules/.pnpm/sharp@0.34.5/node_modules/sharp/src/build/Release
+
+# Remove tools only used to build sharp and bcrypt binaries, not needed at runtime
+rm -r %{_builddir}/server-pruned/node_modules/.pnpm/node-gyp@*
+rm -r %{_builddir}/server-pruned/node_modules/.pnpm/node-addon-api@*
+find %{_builddir}/server-pruned/node_modules -type l \( -name node-gyp -o -name node-addon-api \) -delete
+find %{_builddir}/server-pruned/node_modules -path '*/.bin/node-gyp' -delete
 
 # Remove pre-built bcrypt binaries for other platforms and libc variants
 rm -r %{_builddir}/server-pruned/node_modules/.pnpm/bcrypt*/node_modules/bcrypt/prebuilds/linux-arm
@@ -123,6 +129,9 @@ rm -r %{_builddir}/server-pruned/node_modules/.pnpm/bcrypt*/node_modules/bcrypt/
 # Remove modules for the Bare JS runtime -- I'm pretty sure immich never
 # loads these, and they contain unwanted pre-built natives
 find %{_builddir}/server-pruned/node_modules/.pnpm -depth -name 'bare-*' -exec rm -rf {} +
+
+# Remove source maps for third party modules
+find %{_builddir}/server-pruned/node_modules -name '*.map' -delete
 
 # Web fonts are removed from the source tarball due to their size, so fetch
 # them from upstream Google Fonts repository
@@ -225,6 +234,12 @@ export npm_config_manage_package_manager_versions=false
 %dir %attr(0750,immich,immich) %{_sharedstatedir}/immich
 
 %changelog
+* Mon Oct 26 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-7
+- Download fonts on demand at buildtime
+- Use system version of pnpm
+- Remove source maps for third-party modules
+- Remove compile-time only node-gyp module
+
 * Sat Oct 24 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-6
 - Build and install the core workflow plugin
 
