@@ -1,0 +1,55 @@
+From dc13f2527c0a5588834a48a838ba070fa6b9a538 Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@gmail.com>
+Date: Tue, 27 Oct 2026 21:03:51 +0000
+Subject: [PATCH] Drop CustomUvicornServer shutdown override
+
+The override closes gunicorn's listening sockets before uvicorn closes
+its servers.
+
+Without uvloop, which is not available in Fedora, the default asyncio
+event loop holds on to the very same gunicorn socket wrapper objects,
+and gunicorn's wrapper sets its inner socket to None when closed. The
+subsequent server.close() then crashes the worker on every shutdown:
+
+With the asyncio event loop, uvicorn's own shutdown sequence (close the
+servers, then the sockets) is already clean, so the override is not
+needed.
+---
+ immich_ml/config.py | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
+
+diff --git a/immich_ml/config.py b/immich_ml/config.py
+index 8b383f5..77ce16e 100644
+--- a/immich_ml/config.py
++++ b/immich_ml/config.py
+@@ -3,7 +3,6 @@ import logging
+ import os
+ import sys
+ from pathlib import Path
+-from socket import socket
+ 
+ from gunicorn.arbiter import Arbiter
+ from pydantic import BaseModel
+@@ -151,18 +150,10 @@ log = logging.getLogger("ml.log")
+ log.setLevel(LOG_LEVEL)
+ 
+ 
+-# patches this issue https://github.com/encode/uvicorn/discussions/1803
+-class CustomUvicornServer(Server):
+-    async def shutdown(self, sockets: list[socket] | None = None) -> None:
+-        for sock in sockets or []:
+-            sock.close()
+-        await super().shutdown()
+-
+-
+ class CustomUvicornWorker(UvicornWorker):
+     async def _serve(self) -> None:
+         self.config.app = self.wsgi
+-        server = CustomUvicornServer(config=self.config)
++        server = Server(config=self.config)
+         self._install_sigquit_handler()
+         await server.serve(sockets=self.sockets)
+         if not server.started:
+-- 
+2.55.0
+

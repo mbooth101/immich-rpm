@@ -2,7 +2,7 @@
 
 Name:           immich-machine-learning
 Version:        2.7.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 # One file is Apache 2.0 licensed:
@@ -16,6 +16,9 @@ Source0:        v%{version}.tar.xz
 Source1: sysusers
 Source2: systemd.service
 Source3: environment
+
+# Fix worker crash on shutdown
+Patch0: 0001-Drop-CustomUvicornServer-shutdown-override.patch
 
 BuildArch: noarch
 BuildRequires: systemd-rpm-macros
@@ -93,6 +96,9 @@ install -dm 0750 %{buildroot}%{_localstatedir}/lib/%{name}
 %dir %attr(750,immich_ml,immich_ml) %{_localstatedir}/lib/%{name}
 
 %changelog
+* Tue Oct 27 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-2
+- Fix worker crash on shutdown due to inactivity
+
 * Wed Oct 21 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-1
 - Update to latest 2.x release
 
