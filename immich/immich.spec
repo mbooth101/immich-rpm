@@ -3,7 +3,7 @@
 
 Name:           immich
 Version:        2.7.5
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Self-hosted photo and video management solution
 
 # Bundled GoogleSans and GoogleSansCode web fonts are OFL-1.1
@@ -26,7 +26,8 @@ Source13: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/
 # Fix some hardcoded assumptions about PATH contents
 Patch: 0001-more-robust-scripts.patch
 
-ExclusiveArch: %{nodejs_arches}
+# Prebuilt extism-js, needed to build the core plugin, is only available for these arches
+ExclusiveArch: x86_64 aarch64
 
 %if 0%{?fedora} >= 44
 Requires: nodejs24-bin
@@ -92,6 +93,11 @@ sed -i -e '/^lib_path=/s|".*"|"%{_libdir}/libmimalloc.so.3"|' server/bin/start.s
 %else
 sed -i -e '/^lib_path=/s|".*"|"%{_libdir}/libmimalloc.so.2"|' server/bin/start.sh
 %endif
+
+# Fix expected location of postgresql tools
+sed -i -e 's|/usr/lib/postgresql/[^/]*/bin/|/usr/bin/|' \
+  server/src/services/database-backup.service.ts \
+  server/src/services/database-backup.service.spec.ts
 
 %build
 # These build steps essentially mirror those performed in the Dockerfile
@@ -198,7 +204,8 @@ install -Dpm 0444 cities500.txt %{buildroot}%{_prefix}/lib/immich/geodata
 install -Dpm 0444 %{SOURCE11} %{buildroot}%{_prefix}/lib/immich/geodata
 install -Dpm 0444 %{SOURCE12} %{buildroot}%{_prefix}/lib/immich/geodata
 install -Dpm 0444 %{SOURCE13} %{buildroot}%{_prefix}/lib/immich/geodata
-date --iso-8601=seconds | tr -d "\n" > geodata-date.txt
+# This timestamp changing causes immich to re-import geodata
+date -u -d "@${SOURCE_DATE_EPOCH:-$(date +%s)}" --iso-8601=seconds | tr -d "\n" > geodata-date.txt
 install -Dpm 0444 geodata-date.txt %{buildroot}%{_prefix}/lib/immich/geodata
 
 # User data directory
@@ -234,6 +241,11 @@ export npm_config_manage_package_manager_versions=false
 %dir %attr(0750,immich,immich) %{_sharedstatedir}/immich
 
 %changelog
+* Tue Oct 27 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-8
+- Fix expected location of pg_dump
+- Limit build to x86 and aarch64
+- Use a reproducible date for geodata-date.txt
+
 * Mon Oct 26 2026 Mat Booth <mat.booth@gmail.com> - 2.7.5-7
 - Download fonts on demand at buildtime
 - Use system version of pnpm
